@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, X, Upload, CheckCircle2, ArrowRight, User, Mail, Phone, Globe, MapPin, BookOpen, Cpu, Briefcase, Banknote, Clock, Languages, Info, ArrowLeft, Loader2 } from 'lucide-react';
+import { toast } from '../lib/toast';
 
 // Interface defined outside the component
 interface IJobForm {
@@ -43,7 +44,7 @@ export function JobApplication() {
         country: '', state: '', city: '',
         resume: null, degree: '', college: '', yearOfPassing: '',
         techSkills: '', experienceType: 'fresher', company: '', years: '',
-        expectedSalary: '', availability: 'immediate',
+        expectedSalary: '', availability: '',
         englishLevel: '', otherLanguages: '',
         aboutMe: '', whyHireMe: ''
     });
@@ -117,7 +118,7 @@ export function JobApplication() {
             if (response.ok) setStep(6);
             else {
                 const errorData = await response.json();
-                alert(`Error: ${errorData.message}`);
+                toast.error(`Application failed: ${errorData.message}`);
             }
         } catch (err) {
             console.error("Network error:", err);
@@ -131,31 +132,29 @@ export function JobApplication() {
     return (
         <div className="fixed inset-0 z-[100] bg-slate-50 text-slate-900 flex flex-col overflow-hidden font-sans">
             {/* --- TOP HEADER --- */}
-            <header className="h-20 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-50">
-                <div className="flex items-center gap-4">
-                    <div className="bg-white p-2 rounded-xl shadow-sm">
-                        <Briefcase className="size-6 text-[#0F172A]" />
-
-
-                        <div>
-                            <h2 className="text-sm font-black text-slate-800 tracking-tight uppercase">Apply for Position</h2>
-                            <p className="text-[10px] text-blue-600 font-bold uppercase tracking-widest">Dotok Communications</p>
-                        </div>
+            <header className="h-16 md:h-20 bg-white border-b border-slate-200 px-4 md:px-8 flex items-center justify-between sticky top-0 z-50 shrink-0">
+                <div className="flex items-center gap-3">
+                    <div className="bg-white p-1.5 rounded-xl shadow-sm">
+                        <Briefcase className="size-5 text-[#0F172A]" />
+                    </div>
+                    <div>
+                        <h2 className="text-xs font-black text-slate-800 tracking-tight uppercase">Apply for Position</h2>
+                        <p className="text-[9px] text-blue-600 font-bold uppercase tracking-widest hidden sm:block">Dotok Communications</p>
                     </div>
                 </div>
-                {/* Desktop Progress Bar */}
-                <div className="hidden md:flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
+                {/* Progress Bar — compact on mobile */}
+                <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
                     {steps.map((s, idx) => (
                         <div key={s.s} className="flex items-center">
-                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${step >= s.s ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
-                                {step > s.s ? <CheckCircle2 size={12} /> : s.s}
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${step >= s.s ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                                {step > s.s ? <CheckCircle2 size={10} /> : s.s}
                             </div>
-                            {idx !== steps.length - 1 && <div className={`w-8 h-[2px] mx-1 ${step > s.s ? 'bg-blue-600' : 'bg-slate-200'}`} />}
+                            {idx !== steps.length - 1 && <div className={`w-4 md:w-8 h-[2px] mx-0.5 ${step > s.s ? 'bg-blue-600' : 'bg-slate-200'}`} />}
                         </div>
                     ))}
                 </div>
                 <button onClick={handleClose} className="p-2 hover:bg-red-50 hover:text-red-500 rounded-full transition-all text-slate-400">
-                    <X size={24} />
+                    <X size={22} />
                 </button>
             </header>
             <div className="flex flex-1 overflow-hidden">
@@ -190,7 +189,7 @@ export function JobApplication() {
                 </aside>
                 {/* --- MAIN FORM CONTENT --- */}
                 <main className="flex-1 overflow-y-auto bg-white flex justify-center">
-                    <div className="w-full max-w-3xl px-8 py-12 md:py-16">
+                    <div className="w-full max-w-3xl px-4 md:px-8 py-8 md:py-16">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={step}
@@ -275,16 +274,12 @@ export function JobApplication() {
                                                         <Cpu size={18} className="text-slate-400 group-focus-within:text-blue-600" />
                                                         <input
                                                             id="skill-input"
+                                                            value={searchTerm}
                                                             className="bg-transparent outline-none w-full font-bold text-slate-800 placeholder:text-slate-300 text-sm"
                                                             placeholder="Type to search skills (e.g. React)..."
                                                             autoComplete="off"
                                                             onChange={(e) => {
-                                                                const val = e.target.value;
-                                                                setSearchTerm(val); // 🔥 ADD THIS
-
-                                                                const dropdown = document.getElementById('skills-dropdown');
-                                                                if (val.length > 0) dropdown?.classList.remove('hidden');
-                                                                else dropdown?.classList.add('hidden');
+                                                                setSearchTerm(e.target.value);
                                                             }}
                                                         />
                                                     </div>
@@ -459,20 +454,19 @@ export function JobApplication() {
             </div>
             {/* --- STICKY FOOTER --- */}
             {step < 6 && (
-                <footer className="h-24 bg-white border-t border-slate-100 px-8 md:px-12 flex items-center justify-between z-50">
-                    <button onClick={step === 1 ? handleClose : prevStep} className="flex items-center gap-2 font-bold text-xs uppercase tracking-widest text-slate-400 hover:text-slate-800 transition-all">
+                <footer className="bg-white border-t border-slate-100 px-4 md:px-12 py-4 md:py-0 md:h-24 flex items-center justify-between z-50 shrink-0">
+                    <button onClick={step === 1 ? handleClose : prevStep} className="flex items-center gap-2 font-bold text-xs uppercase tracking-widest text-slate-400 hover:text-slate-800 transition-all p-3">
                         <ArrowLeft size={16} /> {step === 1 ? 'Cancel' : 'Back'}
                     </button>
-
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-4">
                         <span className="hidden sm:block text-[10px] font-black text-slate-300 uppercase tracking-widest">Step {step} of 5</span>
                         <button
                             onClick={step === 5 ? handleSubmit : nextStep}
                             disabled={isSubmitting}
-                            className="bg-[#0F172A] text-white px-8 py-4 rounded-xl font-bold text-sm flex items-center gap-3 shadow-xl shadow-blue-100  transition-all active:scale-95 disabled:opacity-50"
+                            className="bg-[#0F172A] text-white px-6 md:px-8 py-3.5 md:py-4 rounded-xl font-bold text-sm flex items-center gap-2 shadow-xl transition-all active:scale-95 disabled:opacity-50"
                         >
-                            {isSubmitting ? <Loader2 size={20} className="animate-spin" /> : step === 5 ? 'Confirm & Apply' : 'Continue to Next Step'}
-                            {!isSubmitting && <ArrowRight size={18} />}
+                            {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : step === 5 ? 'Confirm & Apply' : 'Continue'}
+                            {!isSubmitting && <ArrowRight size={16} />}
                         </button>
                     </div>
                 </footer>

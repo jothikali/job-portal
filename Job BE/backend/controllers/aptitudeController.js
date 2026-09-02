@@ -13,14 +13,35 @@ export const getQuestions = async (req, res) => {
 
 // 2. SUBMIT TEST - Rule: Status update panradhu
 export const submitTest = async (req, res) => {
-    const { applicationId, score, answers } = req.body;
-    console.log("Updating Row ID:", applicationId); // Check if this is 1 or 3
-    
-    const sql = "UPDATE applications SET status = 'FINISHED', aptitude_score = ? WHERE id = ?";
-    
+    const { applicationId, score } = req.body;
+    console.log("Updating Row ID:", applicationId);
+
     try {
-        const [result] = await db.query(sql, [score, applicationId]);
-        console.log("Rows affected:", result.affectedRows); // Idhu 0-nu vandha ID thappu!
+        // Fetch existing history
+        const [rows] = await db.query(
+            "SELECT status_history FROM applications WHERE id = ?",
+            [applicationId]
+        );
+        let history = [];
+        try {
+            const raw = rows[0]?.status_history;
+            history = raw ? JSON.parse(raw) : [];
+        } catch (_) { history = []; }
+
+        const now = new Date();
+        const timestamp = now.toLocaleString('en-GB', {
+            day: '2-digit', month: 'short', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', hour12: true
+        }).replace(',', '');
+        history.push({ status: 'FINISHED', timestamp });
+
+        const sql = `
+            UPDATE applications 
+            SET status = 'FINISHED', aptitude_score = ?, status_history = ?
+            WHERE id = ?`;
+
+        const [result] = await db.query(sql, [score, JSON.stringify(history), applicationId]);
+        console.log("Rows affected:", result.affectedRows);
         res.status(200).json({ status: "Success" });
     } catch (err) {
         res.status(500).json({ error: err.message });

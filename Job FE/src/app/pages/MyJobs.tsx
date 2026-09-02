@@ -9,6 +9,7 @@ import jsPDF from 'jspdf';
 import ProfileMenu from './ProfileDropdown';
 import InterviewCard from './InterviewCard';
 import ApplicationDetailDrawer from './ApplicationDetailDrawer';
+import { InstallNavButton } from '../components/InstallBanner';
 
 const MyJobs = () => {
   const [activeTab, setActiveTab] = useState('applied');
@@ -127,9 +128,10 @@ const MyJobs = () => {
           setJobs(allData);
         } 
         else if (activeTab === 'interviews') {
+          const INTERVIEW_ROUNDS = ['APTITUDE ROUND', 'TECHNICAL INTERVIEW', 'HR DISCUSSION'];
           setJobs(allData.filter((job: any) => {
             const s = job?.status?.toUpperCase() || '';
-            return ['SHORTLISTED', 'INTERVIEW', 'TECHNICAL', 'TECHNICAL ROUND', 'HR DISCUSSION'].includes(s);
+            return INTERVIEW_ROUNDS.includes(s);
           }));
         } 
         else if (activeTab === 'archived') {
@@ -162,51 +164,52 @@ const MyJobs = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
-      <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#0F172A] text-white py-5 px-10 shadow-md flex items-center justify-between border-b border-white/10">
-        <div className="flex items-center gap-12">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="bg-white p-2 rounded-xl shadow-sm">
-              <Briefcase className="size-6 text-[#0F172A]" />
+    <div className="min-h-screen bg-white overflow-x-hidden">
+      <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#0F172A] text-white py-4 px-4 md:px-10 shadow-md flex items-center justify-between border-b border-white/10">
+        <div className="flex items-center gap-4 md:gap-12">
+          <Link to="/" className="flex items-center gap-2 md:gap-3 group">
+            <div className="bg-white p-1.5 md:p-2 rounded-xl shadow-sm">
+              <Briefcase className="size-5 md:size-6 text-[#0F172A]" />
             </div>
-            <span className="font-bold text-2xl tracking-tighter text-white uppercase">JobPortal</span>
+            <span className="font-bold text-lg md:text-2xl tracking-tighter text-white uppercase">JobPortal</span>
           </Link>
           <div className="hidden md:flex items-center gap-10 text-[16px] font-bold">
             <Link to="/home" className="text-slate-300 hover:text-white transition-colors">Home</Link>
             <Link to="/reviews" className="text-slate-300 hover:text-white transition-colors">Company reviews</Link>
           </div>
         </div>
-        <div className="flex items-center gap-8 font-bold text-sm">
-          <div className="flex items-center gap-6">
-            <Link to="/my-jobs" className="p-2 rounded-full hover:bg-white/10 transition-all text-slate-300 hover:text-white"><Bookmark size={22} /></Link>
-            <button className="p-2 rounded-full hover:bg-white/10 transition-all text-slate-300 hover:text-white"><Bell size={22} /></button>
+        <div className="flex items-center gap-3 md:gap-8 font-bold text-sm">
+          <div className="flex items-center gap-2 md:gap-6">
+            <Link to="/my-jobs" className="p-2 rounded-full hover:bg-white/10 transition-all text-slate-300 hover:text-white"><Bookmark size={20} /></Link>
+            <button className="p-2 rounded-full hover:bg-white/10 transition-all text-slate-300 hover:text-white"><Bell size={20} /></button>
+            <InstallNavButton />
             <ProfileMenu />
           </div>
-          <div className="h-5 w-[1px] bg-white/20"></div>
-          <Link to="/login" className="text-slate-300 hover:text-white transition-colors">Employers | Post Job</Link>
+          <div className="hidden md:block h-5 w-[1px] bg-white/20" />
+          <Link to="/login" className="hidden md:block text-slate-300 hover:text-white transition-colors">Employers | Post Job</Link>
         </div>
       </nav>
 
-      <main className="pt-[85px]">
-        <div className="max-w-4xl mx-auto mt-16 px-6 pb-20">
-          <div className="flex items-end justify-between mb-10">
+      <main className="pt-[72px] md:pt-[85px]">
+        <div className="max-w-4xl mx-auto mt-8 md:mt-16 px-4 md:px-6 pb-20">
+          <div className="flex items-end justify-between mb-6 md:mb-10">
             <div>
-              <p className="text-blue-600 font-black text-[10px] uppercase tracking-[0.3em] mb-2">Dashboard</p>
-              <h1 className="text-5xl font-black text-slate-900 tracking-tight uppercase">My Jobs</h1>
+              <p className="text-blue-600 font-black text-[10px] uppercase tracking-[0.3em] mb-1">Dashboard</p>
+              <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight uppercase">My Jobs</h1>
             </div>
           </div>
 
-          <div className="flex border-b mb-12 overflow-x-auto scrollbar-hide gap-2">
+          <div className="flex border-b mb-8 md:mb-12 overflow-x-auto scrollbar-hide gap-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex flex-col items-center px-8 py-5 border-b-[4px] transition-all whitespace-nowrap group ${activeTab === tab.id
+                className={`flex flex-col items-center px-4 md:px-8 py-4 md:py-5 border-b-[3px] transition-all whitespace-nowrap ${activeTab === tab.id
                   ? 'border-blue-600 text-blue-600 bg-blue-50/30'
                   : 'border-transparent text-slate-400 hover:text-slate-600'
                   }`}
               >
-                <span className="font-black text-[11px] uppercase tracking-[0.2em]">{tab.label}</span>
+                <span className="font-black text-[10px] uppercase tracking-[0.2em]">{tab.label}</span>
               </button>
             ))}
           </div>
@@ -228,12 +231,12 @@ const MyJobs = () => {
                   const isHired = job.status?.toUpperCase() === 'HIRED';
 
                   return (
-                    <div key={job.id} className="group p-8 border border-slate-200 rounded-[35px] shadow-sm hover:shadow-xl transition-all bg-white flex flex-col md:flex-row justify-between items-center relative overflow-hidden">
-                      <div className="relative z-10 text-center md:text-left">
-                        <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">{job.title}</h3>
+                    <div key={job.id} className="group p-5 md:p-8 border border-slate-200 rounded-[24px] md:rounded-[35px] shadow-sm hover:shadow-xl transition-all bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center relative overflow-hidden gap-4">
+                      <div className="relative z-10 w-full sm:w-auto">
+                        <h3 className="text-lg md:text-2xl font-black text-slate-900 tracking-tight uppercase">{job.title}</h3>
                         <p className="text-slate-400 font-bold uppercase tracking-widest text-xs mt-1">{job.company}</p>
 
-                        <div className="mt-6 flex flex-wrap justify-center md:justify-start items-center gap-4">
+                        <div className="mt-4 flex flex-wrap items-center gap-3">
                           {isSavedTab ? (
                             <>
                               <span className="flex items-center gap-1 text-[10px] font-black uppercase text-slate-500 tracking-widest bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
@@ -244,7 +247,7 @@ const MyJobs = () => {
                               </span>
                             </>
                           ) : (
-                            <span className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border ${
+                            <span className={`px-3 py-1.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border ${
                               job.status?.toLowerCase() === 'shortlisted' ? 'bg-cyan-50 text-cyan-600 border-cyan-100' :
                               job.status?.toLowerCase() === 'rejected' ? 'bg-red-50 text-red-600 border-red-100' :
                               job.status?.toLowerCase() === 'hired' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
@@ -256,32 +259,32 @@ const MyJobs = () => {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3 mt-6 md:mt-0">
+                      <div className="flex items-center gap-3 w-full sm:w-auto">
                         {isSavedTab ? (
                           <>
-                            <button className="p-4 bg-slate-50 text-blue-600 rounded-2xl hover:bg-blue-50 transition-colors border border-slate-100">
-                              <Bookmark size={20} fill="currentColor" />
+                            <button className="p-3 bg-slate-50 text-blue-600 rounded-2xl hover:bg-blue-50 transition-colors border border-slate-100">
+                              <Bookmark size={18} fill="currentColor" />
                             </button>
                             <button
                               onClick={() => navigate(`/apply/${job.job_id || job.id}`)}
-                              className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg active:scale-95"
+                              className="flex-1 sm:flex-none bg-blue-600 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg active:scale-95"
                             >
                               Apply Now
                             </button>
                           </>
                         ) : (
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 w-full sm:w-auto">
                             {isHired && (
                               <button
                                 onClick={() => handleDownloadOffer(job)}
-                                className="bg-emerald-600 text-white px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg active:scale-95 flex items-center gap-2"
+                                className="flex-1 sm:flex-none bg-emerald-600 text-white px-4 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
                               >
-                                <Download size={16} /> Download Offer
+                                <Download size={14} /> Offer
                               </button>
                             )}
                             <button
                               onClick={() => handleViewDetails(job)}
-                              className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95"
+                              className="flex-1 sm:flex-none bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95"
                             >
                               {activeTab === 'archived' ? 'History' : 'View Status'}
                             </button>

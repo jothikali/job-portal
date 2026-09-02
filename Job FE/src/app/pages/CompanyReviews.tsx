@@ -3,6 +3,7 @@ import { Search, Star, Briefcase, TrendingUp, PenLine, X, Bookmark, Bell } from 
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import ProfileMenu from './ProfileDropdown';
+import { toast } from '../lib/toast';
 
 const CompanyReviews = () => {
     const [companies, setCompanies] = useState<any[]>([]);
@@ -44,11 +45,11 @@ const CompanyReviews = () => {
         e.preventDefault();
         try {
             await axios.post('http://localhost:5000/api/reviews', formData);
-            setIsModalOpen(false); // ஃபார்ம் மூடும்
-            fetchReviews(); // டேட்டாவை ரீப்ரெஷ் செய்யும் (உடனே ஸ்கிரீனில் வரும்)
-            alert("Review saved successfully!");
+            setIsModalOpen(false);
+            fetchReviews();
+            toast.success("Review submitted successfully!");
         } catch (error) {
-            alert("Error saving review. Check your Backend POST route.");
+            toast.error("Error saving review. Check your backend connection.");
         }
     };
 

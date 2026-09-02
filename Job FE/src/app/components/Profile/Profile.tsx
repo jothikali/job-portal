@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import ProfileMenu from '../../pages/ProfileDropdown';
+import { toast } from '../../lib/toast';
 import {
     Edit3, FileText, Bookmark, Bell,
     Mail, Phone, MapPin, Briefcase, User,
@@ -109,7 +110,7 @@ export function Profile() {
             await axios.post('http://localhost:5000/api/user/upload-resume', formData);
             fetchProfileData();
         } catch (error) {
-            alert("Upload failed");
+            toast.error("Resume upload failed.");
         } finally {
             setUploading(false);
         }

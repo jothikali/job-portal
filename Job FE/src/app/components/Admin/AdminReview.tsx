@@ -4,6 +4,7 @@ import {
     CheckCircle, XCircle, User, Award, 
     Search, Clock, Mail, ArrowUpRight, AlertCircle, Calendar, X
 } from 'lucide-react';
+import { toast } from '../../lib/toast';
 
 interface Candidate {
     id: number;
@@ -49,7 +50,7 @@ const AdminReview = () => {
     // Function to handle Final API Call
     const handleFinalAction = async (status: string) => {
         if (status === 'TECHNICAL ROUND' && (!interviewDate || !interviewTime)) {
-            alert("Please select both Date and Time!");
+            toast.warn("Please select both Interview Date and Time!");
             return;
         }
 
@@ -62,13 +63,13 @@ const AdminReview = () => {
             });
 
             if (res.data.success) {
-                alert(`Success: Candidate moved to ${status}`);
+                toast.success(`Candidate moved to ${status}`);
                 setCandidates(prev => prev.filter(c => c.id !== selectedCandidate?.id));
                 closeAllModals();
             }
         } catch (err) {
             console.error("Update Error:", err);
-            alert("Update failed. Check backend connection.");
+            toast.error("Update failed. Check backend connection.");
         }
     };
 

@@ -5,6 +5,7 @@ import {
   TrendingUp, Eye, CheckCircle, XCircle, Plus, X, MapPin, DollarSign, Send, Home,
   Layers, ListChecks, Star
 } from 'lucide-react';
+import { toast } from '../lib/toast';
 
 // Interfaces
 
@@ -92,7 +93,7 @@ export function RecruiterDashboard() {
       });
 
       if (response.ok) {
-        alert("Job Posted Successfully! ✅");
+        toast.success("Job posted successfully!");
         setIsModalOpen(false);
         setFormData({
           title: "", company: "TVS Automobile Solutions", location: "",
@@ -102,10 +103,10 @@ export function RecruiterDashboard() {
         fetchDashboardData();
       } else {
         const errorData = await response.json();
-        alert(`Error: ${errorData.error || 'Failed to post job'}`);
+        toast.error(`Error: ${errorData.error || 'Failed to post job'}`);
       }
     } catch (error) {
-      alert("Error connecting to server! Check if your backend is running.");
+      toast.error("Error connecting to server! Check if your backend is running.");
     } finally {
       setIsPosting(false);
     }
@@ -130,7 +131,7 @@ export function RecruiterDashboard() {
   });
 
   const handleAction = async (action: string, candidateId: string | number) => {
-    alert(`${candidateId} is marked as ${action}`);
+    toast.info(`Candidate #${candidateId} marked as ${action}`);
   };
 
   if (loading) return (

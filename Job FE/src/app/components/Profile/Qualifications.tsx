@@ -6,6 +6,7 @@ import {
     Globe, Plus, ArrowLeft, X, Bookmark, Bell, Search, Trash2, Pencil
 } from 'lucide-react';
 import ProfileMenu from '../../pages/ProfileDropdown';
+import { toast } from '../../lib/toast';
 
 const Qualifications = () => {
     const navigate = useNavigate();
@@ -95,9 +96,7 @@ const Qualifications = () => {
                 await axios.post('http://localhost:5000/api/skills/save', { skill_name: mainValue });
             }
 
-            alert(`${activeModal} saved successfully!`);
-
-            // --- UI REFRESH ---
+            toast.success(`${activeModal} saved successfully!`);
             await fetchQualifications();
 
             if (stayOpen) {
@@ -108,7 +107,7 @@ const Qualifications = () => {
             }
         } catch (err) {
             console.error("Save error:", err);
-            alert("Failed to save.");
+            toast.error("Failed to save. Check your connection.");
         }
     };
 

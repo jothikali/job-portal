@@ -169,7 +169,8 @@ export const getAppliedJobs = async (req, res) => {
             a.interview_date, 
             a.interview_time, 
             a.interview_link,
-            a.skills AS user_skills, -- Database-la 'skills' nu irukku
+            a.skills AS user_skills,
+            a.status_history,
             j.title,
             j.company,
             j.location,
@@ -348,18 +349,20 @@ export const getApplications = async (req, res) => {
                 a.id, 
                 u.username AS fullName, 
                 u.email, 
-                -- Logic: Time mudinjirundha frontend-ku 'Completed' nu anupuvom
                 CASE 
                     WHEN a.status = 'Interview' AND STR_TO_DATE(CONCAT(a.interview_date, ' ', a.interview_time), '%Y-%m-%d %H:%i:%s') < NOW() 
                     THEN 'Completed' 
                     ELSE a.status 
                 END AS status,
                 a.applied_date AS appliedAt, 
+                j.id AS job_id,
                 j.title AS jobTitle,
+                j.required_skills,
                 a.interview_date,
                 a.interview_time,
                 a.resume_path, 
-                a.skills      
+                a.skills,
+                a.status_history
             FROM applications a
             JOIN users u ON a.user_id = u.id 
             JOIN jobs j ON a.job_id = j.id 
@@ -416,38 +419,57 @@ export const approveForInterview = async (req, res) => {
 // backend/controllers/jobController.js
 // backend/controllers/jobController.js
 export const updateRound = async (req, res) => {
-    // 1. Path params-ku badhila body-la irunthu data edukkurathu (Frontend match)
-    const { applicationId, status, date, time } = req.body; 
+    const { applicationId, status, date, time } = req.body;
 
     try {
-        // 2. Query-la interview_date and interview_time-aiyum serthu update pannanum
+        // 1. Fetch current status_history (JSON column) to append new entry
+        const [rows] = await db.query(
+            "SELECT status_history FROM applications WHERE id = ?",
+            [applicationId]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: "Application not found" });
+        }
+
+        // 2. Parse existing history or start fresh
+        let history = [];
+        try {
+            const raw = rows[0].status_history;
+            history = raw ? JSON.parse(raw) : [];
+        } catch (_) {
+            history = [];
+        }
+
+        // 3. Append new audit entry
+        const now = new Date();
+        const timestamp = now.toLocaleString('en-GB', {
+            day: '2-digit', month: 'short', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', hour12: true
+        }).replace(',', '');
+        history.push({ status, timestamp });
+
+        // 4. Update status + schedule + history
         const sql = `
             UPDATE applications 
-            SET status = ?, interview_date = ?, interview_time = ? 
+            SET status = ?, interview_date = ?, interview_time = ?, status_history = ?
             WHERE id = ?
         `;
-        
-        // 3. Frontend-la irunthu varra 'applicationId' thaan inga 'id'
-        const [result] = await db.query(sql, [status, date, time, applicationId]);
+        const [result] = await db.query(sql, [
+            status, date, time, JSON.stringify(history), applicationId
+        ]);
 
         if (result.affectedRows > 0) {
-            // 4. Response-la 'success: true' kudukanum (Frontend check panna)
-            return res.status(200).json({ 
-                success: true, 
-                message: "Status and Schedule updated successfully" 
+            return res.status(200).json({
+                success: true,
+                message: "Status and Schedule updated successfully"
             });
         } else {
-            return res.status(404).json({ 
-                success: false, 
-                message: "Application not found" 
-            });
+            return res.status(404).json({ success: false, message: "Application not found" });
         }
     } catch (err) {
         console.error("SQL Error:", err);
-        return res.status(500).json({ 
-            success: false, 
-            error: err.message 
-        });
+        return res.status(500).json({ success: false, error: err.message });
     }
 };
 // Get all Education Levels (No Limit)

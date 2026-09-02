@@ -2,8 +2,11 @@ import React, { useEffect } from 'react';
 import {
   X, Calendar, MapPin, CheckCircle2, ArrowUpRight,
   Clock, Building2, Layout, Video, User,
-  Mail, Briefcase, Banknote
+  Mail, Briefcase, Banknote, History
 } from 'lucide-react';
+import { toast } from '../lib/toast';
+
+interface HistoryEntry { status: string; timestamp: string; }
 
 interface DrawerProps {
   isOpen: boolean;
@@ -19,13 +22,51 @@ interface DrawerProps {
     interview_date?: string;
     interview_time?: string;
     interview_link?: string;
-    // Database Aliases from our SQL fix
     user_name?: string;
     user_email?: string;
     job_description?: string;
     salary_range?: string;
     experience_req?: string;
+    status_history?: string;
   } | null;
+}
+
+// ─── Candidate-facing audit timeline ─────────────────────────────────────────
+function CandidateTimeline({ raw }: { raw?: string }) {
+    let entries: HistoryEntry[] = [];
+    try { entries = raw ? JSON.parse(raw) : []; } catch { entries = []; }
+
+    const dotColor = (status: string) => {
+        const s = status.toUpperCase();
+        if (s.includes('HIRED') || s.includes('OFFER')) return 'bg-emerald-500';
+        if (s.includes('REJECTED')) return 'bg-red-500';
+        if (s.includes('HR')) return 'bg-purple-500';
+        if (s.includes('TECHNICAL')) return 'bg-indigo-500';
+        if (s.includes('APTITUDE') || s.includes('FINISHED')) return 'bg-blue-500';
+        if (s.includes('SHORTLISTED')) return 'bg-cyan-500';
+        return 'bg-slate-400';
+    };
+
+    if (entries.length === 0) return (
+        <p className="text-[10px] text-slate-400 italic font-medium">Your application journey will appear here as it progresses.</p>
+    );
+
+    return (
+        <div className="relative ml-2 space-y-0">
+            {entries.map((entry, idx) => (
+                <div key={idx} className="relative flex gap-4 pb-4">
+                    {idx < entries.length - 1 && (
+                        <div className="absolute left-[7px] top-5 bottom-0 w-px bg-slate-100" />
+                    )}
+                    <div className={`mt-1 size-3.5 rounded-full ${dotColor(entry.status)} shrink-0 shadow-sm ring-2 ring-white`} />
+                    <div>
+                        <p className="text-[11px] font-black text-slate-800 uppercase tracking-wide leading-tight">{entry.status}</p>
+                        <p className="text-[10px] text-slate-400 font-medium mt-0.5">{entry.timestamp}</p>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
 }
 
 const ApplicationDetailDrawer: React.FC<DrawerProps> = ({ isOpen, onClose, job }) => {
@@ -33,7 +74,7 @@ const ApplicationDetailDrawer: React.FC<DrawerProps> = ({ isOpen, onClose, job }
     const appId = job?.id; // backend-la namma mathuna appo idhu Application ID-ah irukkum
 
     if (!appId) {
-      alert("Application ID not found!");
+      toast.error("Application ID not found!");
       return;
     }
 
@@ -48,9 +89,8 @@ const ApplicationDetailDrawer: React.FC<DrawerProps> = ({ isOpen, onClose, job }
       const data = await response.json();
 
       if (response.ok && data.status === "Success") {
-        alert("Application moved to archive!");
+        toast.success("Application moved to archive!");
         onClose();
-        // Important: Reload panna dhaan state fetch aagum
         window.location.reload();
       }
     } catch (err) {
@@ -90,56 +130,59 @@ const ApplicationDetailDrawer: React.FC<DrawerProps> = ({ isOpen, onClose, job }
       >
 
         {/* Header */}
-        <div className="p-6 md:p-8 border-b border-slate-100 bg-white sticky top-0 z-20">
-          <button
-            onClick={onClose}
-            className="absolute top-6 right-6 p-2.5 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-xl transition-all active:scale-90"
-          >
-            <X size={20} />
+        <div className="p-4 md:p-8 border-b border-slate-100 bg-white sticky top-0 z-20">
+          <button onClick={onClose}
+            className="absolute top-4 right-4 md:top-6 md:right-6 p-2.5 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-xl transition-all active:scale-90">
+            <X size={18} />
           </button>
 
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-            <div className="w-20 h-20 bg-slate-900 rounded-[24px] flex items-center justify-center text-white text-4xl font-black shadow-xl shrink-0 uppercase">
+          <div className="flex items-start gap-4 pr-10">
+            <div className="w-14 h-14 md:w-20 md:h-20 bg-slate-900 rounded-[18px] md:rounded-[24px] flex items-center justify-center text-white text-2xl md:text-4xl font-black shadow-xl shrink-0 uppercase">
               {job.company?.charAt(0)}
             </div>
-            <div className="text-center md:text-left pt-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 mb-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+            <div className="pt-1 min-w-0">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 mb-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
                 {job.status || 'Applied'}
               </div>
-              <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight uppercase mb-2 leading-tight">
+              <h2 className="text-xl md:text-3xl font-black text-slate-900 tracking-tight uppercase mb-1 leading-tight truncate">
                 {job.title}
               </h2>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
-                <span className="flex items-center gap-1.5"><Building2 size={14} /> {job.company}</span>
-                <span className="flex items-center gap-1.5"><MapPin size={14} /> {job.location}</span>
-                <span className="flex items-center gap-1.5"><Calendar size={14} /> Applied {job.applied_date || 'Recently'}</span>
+              <div className="flex flex-wrap items-center gap-3 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
+                <span className="flex items-center gap-1.5"><Building2 size={12} /> {job.company}</span>
+                <span className="flex items-center gap-1.5 hidden sm:flex"><MapPin size={12} /> {job.location}</span>
+                <span className="flex items-center gap-1.5 hidden sm:flex"><Calendar size={12} /> Applied {job.applied_date || 'Recently'}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Scrollable Content */}
-        <div className="overflow-y-auto max-h-[65vh] p-6 md:p-8 space-y-8 bg-slate-50/30">
+        <div className="overflow-y-auto max-h-[60vh] md:max-h-[65vh] p-4 md:p-8 space-y-6 md:space-y-8 bg-slate-50/30">
 
           {/* 1. Stepper Section */}
-          <section className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-10 flex items-center gap-2">
+          <section className="bg-white rounded-2xl md:rounded-3xl p-5 md:p-8 border border-slate-100 shadow-sm">
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 md:mb-10 flex items-center gap-2">
               <Layout size={16} className="text-blue-500" /> Application Journey
             </h3>
-            <div className="grid grid-cols-4 gap-2 relative">
-              <div className="absolute top-5 left-10 right-10 h-0.5 bg-slate-100 -z-0"></div>
-              {steps.map((step, i) => (
-                <div key={i} className="relative z-10 flex flex-col items-center">
-                  <div className={`w-11 h-11 rounded-full flex items-center justify-center border-4 border-white transition-all duration-500 ${i <= currentStepIndex ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-200 text-slate-400'
-                    }`}>
-                    {i < currentStepIndex ? <CheckCircle2 size={20} /> : <Clock size={20} />}
+            {/* Scrollable horizontal stepper on mobile */}
+            <div className="overflow-x-auto pb-2">
+              <div className="flex items-center gap-2 min-w-max md:min-w-0 md:grid md:grid-cols-4 relative">
+                <div className="hidden md:block absolute top-5 left-10 right-10 h-0.5 bg-slate-100 -z-0" />
+                {steps.map((step, i) => (
+                  <div key={i} className="relative z-10 flex flex-col items-center px-3 md:px-0">
+                    <div className={`w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center border-4 border-white transition-all duration-500 ${i <= currentStepIndex ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-200 text-slate-400'}`}>
+                      {i < currentStepIndex ? <CheckCircle2 size={16} /> : <Clock size={16} />}
+                    </div>
+                    <p className={`text-[9px] font-black mt-2 md:mt-4 uppercase tracking-tighter whitespace-nowrap ${i === currentStepIndex ? 'text-blue-600' : 'text-slate-500'}`}>
+                      {step.label}
+                    </p>
+                    {i < steps.length - 1 && (
+                      <div className="md:hidden absolute left-full top-[18px] w-6 h-0.5 bg-slate-100" />
+                    )}
                   </div>
-                  <p className={`text-[10px] font-black mt-4 uppercase tracking-tighter ${i === currentStepIndex ? 'text-blue-600' : 'text-slate-500'}`}>
-                    {step.label}
-                  </p>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </section>
 
@@ -225,18 +268,24 @@ const ApplicationDetailDrawer: React.FC<DrawerProps> = ({ isOpen, onClose, job }
               )}
             </div>
           )}
+
+          {/* 5. Status History Timeline */}
+          <section className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+              <History size={16} className="text-indigo-400" /> Application Timeline
+            </h3>
+            <CandidateTimeline raw={job.status_history} />
+          </section>
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-8 bg-white border-t border-slate-100 flex flex-col md:flex-row gap-4">
-          <button
-            onClick={() => handleWithdraw()} // Make sure the ID variable name is correct
-            className="flex-1 px-6 py-4 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all"
-          >
+        <div className="px-4 md:px-8 py-5 md:py-8 bg-white border-t border-slate-100 flex flex-col sm:flex-row gap-3">
+          <button onClick={() => handleWithdraw()}
+            className="flex-1 px-6 py-3.5 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all">
             Withdraw
           </button>
-          <button className="flex-[2] px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-2xl flex items-center justify-center gap-3 hover:bg-slate-800 hover:-translate-y-1 transition-all group">
-            Full Job Details <ArrowUpRight size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+          <button className="flex-[2] px-8 py-3.5 bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-2xl flex items-center justify-center gap-3 hover:bg-slate-800 transition-all group">
+            Full Job Details <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </button>
         </div>
       </div>

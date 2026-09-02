@@ -2,13 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-    ArrowLeft,
-    Briefcase,
-    Bookmark,
-    Bell,
-    ChevronRight
+    ArrowLeft, Briefcase, Bookmark, Bell, ChevronRight
 } from 'lucide-react';
-import ProfileMenu from '../../pages/ProfileDropdown'; // Path-ai unga project-ku yetha maari check pannikonga
+import ProfileMenu from '../../pages/ProfileDropdown';
+import { toast } from '../../lib/toast';
 
 const ReadyToWork = () => {
     const [isAvailable, setIsAvailable] = useState(false);
@@ -34,13 +31,14 @@ const ReadyToWork = () => {
     const handleSave = async () => {
         try {
             await axios.post('http://localhost:5000/api/jobs/save-ready-status', {
-                userId: 123, // Unga actual userId
-                readyToWork: isAvailable // Intha variable toggle state-oda match aaganum
+                userId: 123,
+                readyToWork: isAvailable
             });
-            alert("Status saved!");
+            toast.success("Availability status saved!");
             navigate(-1);
         } catch (err) {
             console.error("Save failed:", err);
+            toast.error("Failed to save status.");
         }
     };
 

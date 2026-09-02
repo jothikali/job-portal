@@ -2,9 +2,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { Bell, MessageSquare, Bookmark, User, ChevronDown, Search, MapPin, Briefcase, DollarSign, ChevronRight, CheckCircle } from 'lucide-react';
-
-// 1. ProfileMenu Import (Path-ai check pannikonga)
 import ProfileMenu from './ProfileDropdown';
+import { toast } from '../lib/toast';
+import { InstallNavButton } from '../components/InstallBanner';
 
 interface Job {
   id: string;
@@ -54,24 +54,22 @@ export function JobListings() {
   const handleSaveJob = async (jobId: string) => {
     try {
       if (!currentUser) {
-        alert("Please login to save jobs!");
+        toast.warn("Please login to save jobs!");
         return;
       }
-
       const response = await axios.post('http://localhost:5000/api/jobs/save-job', {
         userId: currentUser.id,
         jobId: jobId
       });
-
       if (response.status === 200) {
-        alert("Job saved successfully!");
+        toast.success("Job saved successfully!");
       }
     } catch (error: any) {
       if (error.response && error.response.status === 409) {
-        alert("Job already saved!");
+        toast.info("Job already saved!");
       } else {
         console.error("Error saving job", error);
-        alert("Failed to save job.");
+        toast.error("Failed to save job.");
       }
     }
   };
@@ -134,64 +132,57 @@ export function JobListings() {
   }, [searchTerm, locationSearch]);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] overflow-x-hidden">
       {/* --- Navigation Bar --- */}
-      <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#0F172A] text-white py-5 px-10 shadow-md flex items-center justify-between border-b border-white/10">
-        <div className="flex items-center gap-12">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="bg-white p-2 rounded-xl shadow-sm">
-              <Briefcase className="size-6 text-[#0F172A]" />
+      <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#0F172A] text-white py-4 px-4 md:px-10 shadow-md flex items-center justify-between border-b border-white/10">
+        <div className="flex items-center gap-4 md:gap-12">
+          <Link to="/" className="flex items-center gap-2 md:gap-3 group">
+            <div className="bg-white p-1.5 md:p-2 rounded-xl shadow-sm">
+              <Briefcase className="size-5 md:size-6 text-[#0F172A]" />
             </div>
-            <span className="font-bold text-2xl tracking-tighter text-white">JobPortal</span>
+            <span className="font-bold text-lg md:text-2xl tracking-tighter text-white">JobPortal</span>
           </Link>
           <div className="hidden md:flex items-center gap-10 text-[16px] font-bold">
             <Link to="/home" className="text-slate-300 hover:text-white transition-colors">Home</Link>
             <Link to="/reviews" className="text-slate-300 hover:text-white transition-colors">Company reviews</Link>
           </div>
         </div>
-        <div className="flex items-center gap-8 font-bold text-sm">
-          <div className="flex items-center gap-6">
-            <Link to="/my-jobs" className="p-2 rounded-full hover:bg-white/10 transition-all text-slate-300 hover:text-white"><Bookmark size={22} /></Link>
-            <button className="p-2 rounded-full hover:bg-white/10 transition-all text-slate-300 hover:text-white"><Bell size={22} /></button>
+        <div className="flex items-center gap-3 md:gap-8 font-bold text-sm">
+          <div className="flex items-center gap-2 md:gap-6">
+            <Link to="/my-jobs" className="p-2 rounded-full hover:bg-white/10 transition-all text-slate-300 hover:text-white"><Bookmark size={20} /></Link>
+            <button className="p-2 rounded-full hover:bg-white/10 transition-all text-slate-300 hover:text-white"><Bell size={20} /></button>
+            <InstallNavButton />
             <ProfileMenu />
           </div>
-          <div className="h-5 w-[1px] bg-white/20"></div>
-          <Link to="/login" className="text-slate-300 hover:text-white transition-colors">Employers | Post Job</Link>
+          <div className="hidden md:block h-5 w-[1px] bg-white/20" />
+          <Link to="/login" className="hidden md:block text-slate-300 hover:text-white transition-colors">Employers | Post Job</Link>
         </div>
       </nav>
-<main className="pt-[85px] flex-1">
+<main className="pt-[72px] md:pt-[85px] flex-1">
       {/* Search Header */}
-      <div className="bg-white border-b py-8 px-8">
+      <div className="bg-white border-b py-4 md:py-8 px-4 md:px-8">
         <div className="max-w-[1200px] mx-auto">
-          <div className="flex gap-4 items-center bg-white border-2 border-slate-100 rounded-2xl p-2 shadow-xl shadow-slate-100 focus-within:border-primary transition-all">
-            <div className="flex-1 flex items-center px-4 gap-3 border-r border-slate-100">
-              <Search className="text-slate-400 size-5" />
-              <input
-                type="text"
-                placeholder="Job title or company"
-                className="w-full outline-none font-bold py-2 text-slate-800"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+          <div className="flex flex-col sm:flex-row gap-3 bg-white border-2 border-slate-100 rounded-2xl p-2 shadow-lg focus-within:border-primary transition-all">
+            <div className="flex-1 flex items-center px-3 gap-3 sm:border-r border-slate-100">
+              <Search className="text-slate-400 size-5 shrink-0" />
+              <input type="text" placeholder="Job title or company"
+                className="w-full outline-none font-bold py-2 text-slate-800 text-sm"
+                value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
             </div>
-            <div className="flex-1 flex items-center px-4 gap-3">
-              <MapPin className="text-slate-400 size-5" />
-              <input
-                type="text"
-                placeholder="Location"
-                className="w-full outline-none font-bold py-2 text-slate-800"
-                value={locationSearch}
-                onChange={(e) => setLocationSearch(e.target.value)}
-              />
+            <div className="flex items-center gap-3 px-3 sm:flex-1">
+              <MapPin className="text-slate-400 size-5 shrink-0" />
+              <input type="text" placeholder="Location"
+                className="w-full outline-none font-bold py-2 text-slate-800 text-sm"
+                value={locationSearch} onChange={(e) => setLocationSearch(e.target.value)} />
             </div>
-            <button className="bg-primary text-white px-8 py-3 rounded-xl font-black hover:opacity-90 transition-all">Find jobs</button>
+            <button className="bg-primary text-white px-6 py-3 rounded-xl font-black hover:opacity-90 transition-all text-sm">Find jobs</button>
           </div>
         </div>
       </div>
 </main>
-      <div className="max-w-[1400px] mx-auto px-8 py-10 flex gap-8">
-        {/* Left Column */}
-        <div className="w-full lg:w-[450px] space-y-4 overflow-y-auto max-h-[calc(100vh-200px)] custom-scrollbar">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-6 md:py-10 flex flex-col lg:flex-row gap-6 md:gap-8">
+        {/* Left Column — full width on mobile, fixed on desktop */}
+        <div className="w-full lg:w-[420px] space-y-3 lg:overflow-y-auto lg:max-h-[calc(100vh-200px)] custom-scrollbar shrink-0">
           <h2 className="font-black text-xl text-slate-800 mb-6">
             {filteredJobs.length} {filteredJobs.length === 1 ? 'job' : 'jobs'} found
           </h2>

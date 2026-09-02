@@ -3,6 +3,7 @@ import {
     MoreVertical, Edit3, Trash2, Eye,
     Search, Filter, Plus, CheckCircle, Clock
 } from "lucide-react";
+import { toast } from "../../lib/toast";
 interface Job {
     id: number;
     title: string;
@@ -26,9 +27,8 @@ export function AdminJobs() {
                 });
 
                 if (response.ok) {
-                    // UI-la irundhu andha job-ah mattum remove panna
                     setJobs(jobs.filter(job => job.id !== id));
-                    alert("Job Deleted successfully! 🗑️");
+                    toast.success("Job deleted successfully!");
                 }
             } catch (error) {
                 console.error("Delete error:", error);

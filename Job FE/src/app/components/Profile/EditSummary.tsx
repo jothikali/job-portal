@@ -5,6 +5,7 @@ import {
     Bookmark, Bell, Briefcase, Loader2, ArrowLeft, Save
 } from 'lucide-react';
 import ProfileMenu from '../../pages/ProfileDropdown';
+import { toast } from '../../lib/toast';
 
 export default function EditSummary() {
     const navigate = useNavigate();
@@ -38,25 +39,21 @@ export default function EditSummary() {
         const userId = storedUser.id || storedUser.user?.id;
 
         if (!userId) {
-            alert("Session expired. Please login again.");
+            toast.error("Session expired. Please login again.");
             return;
         }
 
         setSaving(true);
         try {
-            // Backend-la 'update-summary' route-ku PUT method-la data anuprom
             await axios.put(`http://localhost:5000/api/user/update-summary`, {
                 userId: userId,
                 summary: summary
             });
-
-            alert("Summary updated! ✅");
-
-            // Profile page-ku redirect aagum pothu pudhu data display aagum
+            toast.success("Summary updated!");
             navigate('/profile');
         } catch (error) {
             console.error("Update failed:", error);
-            alert("Server error! Make sure your backend is running.");
+            toast.error("Server error! Make sure your backend is running.");
         } finally {
             setSaving(false);
         }

@@ -55,3 +55,41 @@ export const updateJob = async (req, res) => {
     }
 };
 
+export const getJobFunnelStats = async (req, res) => {
+    try {
+        // Single query: for every job, count applications bucketed into 4 funnel stages
+        const sql = `
+            SELECT
+                j.id        AS jobId,
+                COUNT(a.id) AS total,
+                SUM(CASE WHEN UPPER(a.status) IN ('PENDING','SHORTLISTED') THEN 1 ELSE 0 END)                          AS screening,
+                SUM(CASE WHEN UPPER(a.status) IN ('APTITUDE ROUND','FINISHED') THEN 1 ELSE 0 END)                     AS aptitude,
+                SUM(CASE WHEN UPPER(a.status) IN ('TECHNICAL INTERVIEW','HR DISCUSSION') THEN 1 ELSE 0 END)           AS interview,
+                SUM(CASE WHEN UPPER(a.status) IN ('HIRED','OFFER RELEASED') THEN 1 ELSE 0 END)                        AS hired,
+                SUM(CASE WHEN UPPER(a.status) = 'REJECTED' THEN 1 ELSE 0 END)                                         AS rejected
+            FROM jobs j
+            LEFT JOIN applications a ON a.job_id = j.id
+            GROUP BY j.id`;
+
+        const [rows] = await db.query(sql);
+
+        // Convert to a keyed map { jobId -> stats }
+        const stats = {};
+        rows.forEach(r => {
+            stats[r.jobId] = {
+                total:     Number(r.total),
+                screening: Number(r.screening),
+                aptitude:  Number(r.aptitude),
+                interview: Number(r.interview),
+                hired:     Number(r.hired),
+                rejected:  Number(r.rejected),
+            };
+        });
+
+        res.status(200).json(stats);
+    } catch (err) {
+        console.error("Funnel stats error:", err);
+        res.status(500).json({ error: err.message });
+    }
+};
+

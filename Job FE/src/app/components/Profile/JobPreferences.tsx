@@ -2,21 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-    ArrowLeft,
-    Briefcase,
-    Bookmark,
-    Bell,
-    Plus,
-    UserRound,
-    Clock,
-    Banknote,
-    MapPin,
-    Home,
-    Eye,
-    X
+    ArrowLeft, Briefcase, Bookmark, Bell,
+    Plus, UserRound, Clock, Banknote, MapPin, Home, Eye, X
 } from 'lucide-react';
 import ProfileMenu from '../../pages/ProfileDropdown';
 import { Edit2 } from 'lucide-react';
+import { toast } from '../../lib/toast';
 
 const JobPreferences = () => {
     const navigate = useNavigate();
@@ -106,19 +97,17 @@ const JobPreferences = () => {
 
             await axios.post('http://localhost:5000/api/jobs/save-preferences', payload);
 
-            // Success aana mattum states-ai update pannunga
             setSavedJobTitles(tempTitles.filter(t => t.trim() !== ''));
-            // ... all modal states close ...
             setIsTitleModalOpen(false);
             setIsTypeModalOpen(false);
             setIsScheduleModalOpen(false);
             setIsPayModalOpen(false);
             setIsRelocationModalOpen(false);
             setIsRemoteModalOpen(false);
-
-            alert("Saved successfully!");
+            toast.success("Preferences saved!");
         } catch (err) {
             console.error("Save failed", err);
+            toast.error("Failed to save preferences.");
         }
     };
     // Relocation Specific Logic

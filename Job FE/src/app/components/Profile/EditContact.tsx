@@ -3,6 +3,7 @@ import { ArrowLeft, Loader2, Save, Briefcase, Bookmark, Bell } from "lucide-reac
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import ProfileMenu from '../../pages/ProfileDropdown';
+import { toast } from '../../lib/toast';
 
 export default function EditContact() {
     const navigate = useNavigate();
@@ -65,7 +66,7 @@ export default function EditContact() {
             const userId = user.id || user.user?.id;
 
             if (!userId) {
-                alert("Session expired. Please login again.");
+                toast.error("Session expired. Please login again.");
                 navigate("/login");
                 return;
             }
@@ -86,10 +87,8 @@ export default function EditContact() {
             const response = await axios.put(`http://localhost:5000/api/user/update-profile/${userId}`, payload);
 
             if (response.status === 200) {
-                // Updated user object for LocalStorage
                 const updatedUser = {
                     ...user,
-                    // Make sure to update 'user' nesting if your app uses it
                     ...(user.user ? { user: { ...user.user, name: fullName } } : { name: fullName }),
                     role: formData.role,
                     location: formData.cityState,
@@ -97,14 +96,13 @@ export default function EditContact() {
                     street_address: formData.street,
                     pincode: formData.pincode
                 };
-
                 localStorage.setItem("user", JSON.stringify(updatedUser));
-                alert("Profile Updated Successfully! ✅");
+                toast.success("Profile updated successfully!");
                 navigate("/profile");
             }
         } catch (error: any) {
             console.error("Update failed:", error.response?.data);
-            alert(error.response?.data?.message || "Update failed. Check your connection.");
+            toast.error(error.response?.data?.message || "Update failed. Check your connection.");
         } finally {
             setLoading(false);
         }
