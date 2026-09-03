@@ -15,59 +15,73 @@ import aptitudeRoutes from './routes/aptitudeRoutes.js';
 
 dotenv.config();
 
-// 2. SETUP __dirname (ESM-ku idhu thaan correct method)
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname  = path.dirname(__filename);
 
 const app = express();
 
-// 3. GLOBAL MIDDLEWARES
+// ─── CORS ────────────────────────────────────────────────────────────────────
+// Strategy: explicit allowlist + pattern match for Vercel preview URLs.
+// Set FRONTEND_URL=https://your-app.vercel.app in Render dashboard.
 
-// Allowed origins: local dev + Vercel production
-// Set FRONTEND_URL in Render environment variables to your Vercel URL
-// e.g. FRONTEND_URL=https://your-app.vercel.app
-const allowedOrigins = [
-    'http://localhost:5173',   // Vite dev server default
-    'http://localhost:3000',   // fallback
-    process.env.FRONTEND_URL,  // Vercel production URL (set in Render dashboard)
-].filter(Boolean); // remove undefined if FRONTEND_URL not set yet
+const EXPLICIT_ORIGINS = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    process.env.FRONTEND_URL,        // e.g. https://job-portal.vercel.app
+].filter(Boolean);
+
+// Also allow any *.vercel.app subdomain (covers preview deployments)
+const VERCEL_PATTERN = /^https:\/\/[a-z0-9-]+(\.vercel\.app)$/i;
 
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin (Postman, mobile apps, server-to-server)
+        // No origin = Postman / curl / server-to-server — allow
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) return callback(null, true);
-        callback(new Error(`CORS blocked: origin ${origin} not allowed`));
+
+        // Check explicit list first
+        if (EXPLICIT_ORIGINS.includes(origin)) return callback(null, true);
+
+        // Allow any *.vercel.app (preview branches)
+        if (VERCEL_PATTERN.test(origin)) return callback(null, true);
+
+        console.warn(`[CORS] Blocked: ${origin}`);
+        callback(new Error(`CORS blocked: ${origin}`));
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+// Must come before routes — handles pre-flight OPTIONS requests
+app.options('*', cors());
+
 app.use(express.json());
 
-// 4. STATIC FOLDER SETUP (MIGAVUM MUKKIYAM)
-// Intha line-la thaan browser-ku unga uploads folder permission kidaikkum
+// ─── STATIC FILES ─────────────────────────────────────────────────────────────
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// 5. API ROUTES
+// ─── API ROUTES ───────────────────────────────────────────────────────────────
 app.use('/api/qualifications', qualificationRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/jobs', jobRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/skills', skillRoutes); 
-app.use('/api/admin', adminRoutes);
-app.use('/api/user', authRoutes);
-app.use('/api/aptitude', aptitudeRoutes);
+app.use('/api/auth',           authRoutes);
+app.use('/api/jobs',           jobRoutes);
+app.use('/api/reviews',        reviewRoutes);
+app.use('/api/skills',         skillRoutes);
+app.use('/api/admin',          adminRoutes);
+app.use('/api/user',           authRoutes);
+app.use('/api/aptitude',       aptitudeRoutes);
 
-// Root route
-app.get('/', (req, res) => {
-    res.send("Server is running successfully! 🚀");
+// Health check
+app.get('/', (_req, res) => res.send('Server is running successfully! 🚀'));
+
+// ─── GLOBAL ERROR HANDLER ─────────────────────────────────────────────────────
+app.use((err, _req, res, _next) => {
+    console.error('[Error]', err.message);
+    res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
-// 6. SERVER START
+// ─── START ────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT} 🚀`);
-    console.log(`Static path check: ${path.join(__dirname, 'uploads')}`);
+    console.log(`Allowed origins: ${EXPLICIT_ORIGINS.join(', ')} + *.vercel.app`);
 });

@@ -1,34 +1,57 @@
 import db from '../config/db.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
-// --- 1. Login User (Updated Fix) ---
+// --- 1. Login User ---
+// Handles plain-text legacy passwords AND bcrypt hashes.
+// Auto-migrates plain-text to bcrypt on first successful login.
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
-
-    // Debugging: Backend-ku data varudha-nu check panna
-    console.log("Login attempt for:", email);
 
     if (!email || !password) {
         return res.status(400).json({ status: "Error", message: "Email and password are required" });
     }
 
     try {
-        // Query-la password vetchu check panradhu safe illa, so email vetchu user-ai edukalaam
-        const sql = "SELECT * FROM users WHERE email = ?";
-        const [data] = await db.query(sql, [email]);
+        const [data] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
 
-        if (data.length > 0) {
-            const userInDB = data[0];
-            if (password === userInDB.password) {
-                const { password, ...userWithoutPassword } = userInDB;
-                return res.status(200).json({ status: "Success", user: userWithoutPassword });
-            } else {
-                return res.status(401).json({ status: "Error", message: "Invalid Password" });
-            }
-        } else {
+        if (data.length === 0) {
             return res.status(401).json({ status: "Error", message: "User not found" });
         }
+
+        const userInDB = data[0];
+        const storedPassword = userInDB.password;
+        let isMatch = false;
+
+        // bcrypt hashes always start with $2a$ or $2b$
+        const isBcryptHash = typeof storedPassword === 'string' &&
+                             storedPassword.startsWith('$2');
+
+        if (isBcryptHash) {
+            isMatch = await bcrypt.compare(password, storedPassword);
+        } else {
+            // Legacy plain-text comparison
+            isMatch = (password === storedPassword);
+            if (isMatch) {
+                // Auto-migrate: hash and save silently
+                const hashed = await bcrypt.hash(password, 10);
+                await db.query("UPDATE users SET password = ? WHERE id = ?", [hashed, userInDB.id]);
+                console.log(`[Auth] Migrated plain-text → bcrypt for users.id=${userInDB.id}`);
+            }
+        }
+
+        if (!isMatch) {
+            return res.status(401).json({ status: "Error", message: "Invalid Password" });
+        }
+
+        const { password: _, ...userWithoutPassword } = userInDB;
+        const secret = process.env.JWT_SECRET || 'dev_secret_change_in_production';
+        const token  = jwt.sign({ id: userInDB.id }, secret, { expiresIn: '7d' });
+
+        return res.status(200).json({ status: "Success", token, user: userWithoutPassword });
+
     } catch (err) {
-        console.error("MYSQL ERROR:", err);
+        console.error("LOGIN ERROR:", err);
         return res.status(500).json({ message: "Database error", detail: err.message });
     }
 };
@@ -295,26 +318,27 @@ export const getArchivedJobs = async (req, res) => {
     }
 };
 
-// --- 13. Signup User (FIXED) ---
+// --- 13. Signup User ---
 export const signupUser = async (req, res) => {
-    // Change 'name' to 'username' to match your destructuring
     const { username, email, password } = req.body;
 
-    if (!username || !email || !password) { // Fixed: used username
+    if (!username || !email || !password) {
         return res.status(400).json({ status: "Error", message: "All fields are required" });
     }
 
     try {
-        const checkSql = "SELECT * FROM users WHERE email = ?";
-        const [existing] = await db.query(checkSql, [email]);
+        const [existing] = await db.query("SELECT id FROM users WHERE email = ?", [email]);
 
         if (existing.length > 0) {
             return res.status(409).json({ status: "Error", message: "Email already registered" });
         }
 
-        const sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
-        // Fixed: Use 'username' here to match the variable above
-        const [result] = await db.query(sql, [username, email, password]);
+        // Always hash on signup — never store plain text
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const [result] = await db.query(
+            "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+            [username, email, hashedPassword]
+        );
 
         return res.status(201).json({
             status: "Success",

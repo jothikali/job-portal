@@ -17,26 +17,61 @@ export const signupUser = async (req, res) => {
 };
 
 // 2. LOGIN FUNCTION
+// Handles both legacy plain-text passwords and bcrypt hashes.
+// On first plain-text match it auto-migrates the stored value to a bcrypt hash.
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+    }
+
     try {
         const [users] = await db.query("SELECT * FROM login WHERE email = ?", [email]);
-        if (users.length > 0) {
-            const user = users[0];
-            const isMatch = await bcrypt.compare(password, user.password);
-            if (isMatch) {
-                const { password: _, ...userData } = user;
-                const token = jwt.sign({ id: user.id }, 'your_secret_key', { expiresIn: '1h' });
-                return res.status(200).json({ status: "Success", token, user: userData });
-            } else {
-                return res.status(401).json({ message: "Invalid password!" });
-            }
-        } else {
+
+        if (users.length === 0) {
             return res.status(404).json({ message: "User not found!" });
         }
+
+        const user = users[0];
+        const storedPassword = user.password;
+        let isMatch = false;
+
+        // Detect whether the stored value is a bcrypt hash ($2b$ prefix)
+        const isBcryptHash = typeof storedPassword === 'string' &&
+                             storedPassword.startsWith('$2');
+
+        if (isBcryptHash) {
+            // Normal path — compare with bcrypt
+            isMatch = await bcrypt.compare(password, storedPassword);
+        } else {
+            // Legacy path — plain-text comparison
+            isMatch = (password === storedPassword);
+
+            if (isMatch) {
+                // Auto-migrate: hash the password and update DB silently
+                const hashed = await bcrypt.hash(password, 10);
+                await db.query("UPDATE login SET password = ? WHERE id = ?", [hashed, user.id]);
+                console.log(`[Auth] Migrated plain-text password to bcrypt for user ${user.id}`);
+            }
+        }
+
+        if (!isMatch) {
+            return res.status(401).json({ message: "Invalid password!" });
+        }
+
+        // Strip password from response
+        const { password: _, ...userData } = user;
+
+        // Sign JWT — use env var, fall back to a dev-only default
+        const secret = process.env.JWT_SECRET || 'dev_secret_change_in_production';
+        const token  = jwt.sign({ id: user.id }, secret, { expiresIn: '7d' });
+
+        return res.status(200).json({ status: "Success", token, user: userData });
+
     } catch (err) {
         console.error("LOGIN ERROR:", err);
-        return res.status(500).json({ error: "Login error" });
+        return res.status(500).json({ error: "Login error", detail: err.message });
     }
 };
 
