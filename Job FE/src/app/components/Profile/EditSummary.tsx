@@ -1,3 +1,4 @@
+import { API } from '../../lib/api';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -20,7 +21,7 @@ export default function EditSummary() {
                 const userId = storedUser.id || storedUser.user?.id;
 
                 if (userId) {
-                    const response = await axios.get(`http://localhost:5000/api/user/full-profile/${userId}`);
+                    const response = await axios.get(`${API}/user/full-profile/${userId}`);
                     // Backend status 200 kudutha data-va set pannuvom
                     if (response.data) {
                         setSummary(response.data.summary || '');
@@ -45,7 +46,7 @@ export default function EditSummary() {
 
         setSaving(true);
         try {
-            await axios.put(`http://localhost:5000/api/user/update-summary`, {
+            await axios.put(`${API}/user/update-summary`, {
                 userId: userId,
                 summary: summary
             });

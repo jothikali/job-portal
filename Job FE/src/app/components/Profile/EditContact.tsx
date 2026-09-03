@@ -1,3 +1,4 @@
+import { API } from '../../lib/api';
 import { useState, useEffect } from "react";
 import { ArrowLeft, Loader2, Save, Briefcase, Bookmark, Bell } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
@@ -28,7 +29,7 @@ export default function EditContact() {
                 const userId = savedUser.id || savedUser.user?.id;
 
                 if (userId) {
-                    const response = await axios.get(`http://localhost:5000/api/user/full-profile/${userId}`);
+                    const response = await axios.get(`${API}/user/full-profile/${userId}`);
                     const data = response.data;
                     const nameParts = data.name ? data.name.split(" ") : ["", ""];
 
@@ -84,7 +85,7 @@ export default function EditContact() {
                 pincode: formData.pincode
             };
 
-            const response = await axios.put(`http://localhost:5000/api/user/update-profile/${userId}`, payload);
+            const response = await axios.put(`${API}/user/update-profile/${userId}`, payload);
 
             if (response.status === 200) {
                 const updatedUser = {

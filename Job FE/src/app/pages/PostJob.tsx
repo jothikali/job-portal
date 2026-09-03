@@ -1,3 +1,4 @@
+import { API } from '../lib/api';
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -26,7 +27,7 @@ export function PostJob() {
 
     // Fetch skills from backend for suggestions
     useEffect(() => {
-        fetch("http://localhost:5000/api/skills")
+        fetch("${API}/skills")
             .then(r => r.json())
             .then(data => setAllSkills(Array.isArray(data) ? data : []))
             .catch(() => {});
@@ -52,7 +53,7 @@ export function PostJob() {
         e.preventDefault();
         setLoading(true);
         try {
-            const response = await fetch("http://localhost:5000/api/jobs", {
+            const response = await fetch("${API}/jobs", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

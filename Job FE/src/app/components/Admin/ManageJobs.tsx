@@ -1,3 +1,4 @@
+import { API } from '../../lib/api';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -115,8 +116,8 @@ const ManageJobs = () => {
     const fetchJobs = async () => {
         try {
             const [jobsRes, funnelRes] = await Promise.all([
-                axios.get('http://localhost:5000/api/jobs'),
-                axios.get('http://localhost:5000/api/admin/job-funnel-stats'),
+                axios.get(`${API}/jobs`),
+                axios.get(`${API}/admin/job-funnel-stats`),
             ]);
             setJobs(jobsRes.data);
             setFunnel(funnelRes.data);
@@ -133,7 +134,7 @@ const ManageJobs = () => {
     const handleDelete = async (id: number) => {
         if (window.confirm("Are you sure you want to delete this job?")) {
             try {
-                await axios.delete(`http://localhost:5000/api/jobs/delete-job/${id}`);
+                await axios.delete(`${API}/jobs/delete-job/${id}`);
                 toast.success("Job deleted!");
                 fetchJobs();
             } catch {
@@ -303,7 +304,7 @@ const ManageJobs = () => {
                             <button
                                 onClick={async () => {
                                     try {
-                                        await axios.put(`http://localhost:5000/api/jobs/update-job/${currentJob.id}`, currentJob);
+                                        await axios.put(`${API}/jobs/update-job/${currentJob.id}`, currentJob);
                                         toast.success("Job updated successfully!");
                                         setIsEditModalOpen(false);
                                         fetchJobs();

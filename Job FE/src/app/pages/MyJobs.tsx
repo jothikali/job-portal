@@ -1,3 +1,4 @@
+import { API } from '../lib/api';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -118,8 +119,8 @@ const MyJobs = () => {
       setLoading(true);
       try {
         const endpoint = activeTab === 'saved'
-          ? `http://localhost:5000/api/jobs/saved-jobs/${userId}`
-          : `http://localhost:5000/api/jobs/applied-jobs/${userId}`;
+          ? `${API}/jobs/saved-jobs/${userId}`
+          : `${API}/jobs/applied-jobs/${userId}`;
 
         const res = await axios.get(endpoint);
         const allData = Array.isArray(res.data) ? res.data : [];

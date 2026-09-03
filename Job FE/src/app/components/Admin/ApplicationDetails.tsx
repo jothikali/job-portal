@@ -1,3 +1,4 @@
+import { API, UPLOADS } from '../../lib/api';
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Calendar, Clock, FileText, CheckCircle, Mail, Briefcase, Zap, Gift, History } from 'lucide-react';
@@ -101,7 +102,7 @@ const ApplicationDetails = ({ isOpen, onClose, application, onUpdate }: any) => 
     ) => {
         setIsUpdating(true);
         try {
-            const res = await axios.put('http://localhost:5000/api/admin/update-round', {
+            const res = await axios.put(`${API}/admin/update-round`, {
                 applicationId: application.id,
                 status: newStatus,
                 date: interviewDate,
@@ -308,7 +309,7 @@ const ApplicationDetails = ({ isOpen, onClose, application, onUpdate }: any) => 
                     <button
                         onClick={() => {
                             if (application.resume_path) {
-                                window.open(`http://localhost:5000/uploads/resumes/${application.resume_path}`, '_blank');
+                                window.open(`${UPLOADS}/resumes/${application.resume_path}`, '_blank');
                             } else {
                                 toast.error('Resume path not found!');
                             }

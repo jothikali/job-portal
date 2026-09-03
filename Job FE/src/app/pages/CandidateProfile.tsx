@@ -1,3 +1,4 @@
+import { API } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
@@ -49,7 +50,7 @@ export function CandidateProfile() {
 
   // 2. Fetch Data from MySQL API
   useEffect(() => {
-    fetch(`http://localhost:5000/api/candidates/${id}`)
+    fetch(`${API}/candidates/${id}`)
       .then((res) => res.json())
       .then((data: Candidate) => {
         setCandidate(data);

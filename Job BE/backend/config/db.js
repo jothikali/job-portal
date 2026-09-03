@@ -6,15 +6,19 @@ dotenv.config();
 
 // VARIABLE NAME: 'db' nu maathitta logic correct-ah irukkum
 const db = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
+    host:     process.env.DB_HOST,
+    port:     parseInt(process.env.DB_PORT || '3306'),
+    user:     process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    timezone: '+05:30', // IST timezone-ku set panrom
-    dateStrings: true
+    timezone: '+05:30',
+    dateStrings: true,
+    // SSL required for cloud DBs (Aiven, PlanetScale, Railway)
+    // Set DB_SSL=true in your Render environment variables
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
 });
 
 // Test connection logic

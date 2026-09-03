@@ -1,3 +1,4 @@
+import { API } from '../lib/api';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Briefcase, Mail, Lock, ArrowRight, Chrome, Github, Loader2 } from 'lucide-react';
 import { useState } from 'react';
@@ -19,7 +20,7 @@ export function Login() {
         setLoading(true); // Loading Start
 
         try {
-            const response = await fetch('http://localhost:5000/api/auth/login', {
+            const response = await fetch(`${API}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }), // Inga state names correct-ah irukanum

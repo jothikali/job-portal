@@ -1,3 +1,4 @@
+import { API } from '../lib/api';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
@@ -39,7 +40,7 @@ export function JobListings() {
   // ✅ UPDATE THIS FUNCTION IN YOUR CODE
   const fetchAppliedJobs = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/jobs/applied-jobs/${currentUser.id}`);
+      const res = await axios.get(`${API}/jobs/applied-jobs/${currentUser.id}`);
 
       // IMPORTANT: applications table-la irundhu vara 'job_id'-ah yedukanum
       // 'job.id' nu potta adhu application row-oda ID-ya poiyidudhu
@@ -57,7 +58,7 @@ export function JobListings() {
         toast.warn("Please login to save jobs!");
         return;
       }
-      const response = await axios.post('http://localhost:5000/api/jobs/save-job', {
+      const response = await axios.post(`${API}/jobs/save-job`, {
         userId: currentUser.id,
         jobId: jobId
       });
@@ -88,7 +89,7 @@ export function JobListings() {
     // ✅ Jobs fetch pannum podhe applied status-aiyum fetch panrom
     fetchAppliedJobs();
 
-    fetch('http://localhost:5000/api/jobs')
+    fetch(`${API}/jobs`)
       .then((res) => {
         if (!res.ok) throw new Error('Server Error');
         return res.json();

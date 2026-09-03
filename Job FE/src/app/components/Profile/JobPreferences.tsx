@@ -1,3 +1,4 @@
+import { API } from '../../lib/api';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
@@ -39,11 +40,11 @@ const JobPreferences = () => {
                 const userId = 123;
 
                 // 1. Master titles fetch panradhu
-                const masterRes = await axios.get('http://localhost:5000/api/jobs/master-titles');
+                const masterRes = await axios.get(`${API}/jobs/master-titles`);
                 setMasterTitles(masterRes.data);
 
                 // 2. Refresh pannalum data varadhuku ithu thaan mukkiyam
-                const savedRes = await axios.get(`http://localhost:5000/api/jobs/get-preferences/${userId}`);
+                const savedRes = await axios.get(`${API}/jobs/get-preferences/${userId}`);
 
                 if (savedRes.data) {
                     // Backend-la 'job_title' nu irundha adhai split panni state-la vachikanum
@@ -95,7 +96,7 @@ const JobPreferences = () => {
                 isWillingToRelocate: isWillingToRelocate ? 1 : 0
             };
 
-            await axios.post('http://localhost:5000/api/jobs/save-preferences', payload);
+            await axios.post(`${API}/jobs/save-preferences`, payload);
 
             setSavedJobTitles(tempTitles.filter(t => t.trim() !== ''));
             setIsTitleModalOpen(false);

@@ -1,3 +1,4 @@
+import { API } from '../../lib/api';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
@@ -16,7 +17,7 @@ const ReadyToWork = () => {
     useEffect(() => {
         const fetchStatus = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/jobs/get-preferences/${userId}`);
+                const res = await axios.get(`${API}/jobs/get-preferences/${userId}`);
                 if (res.data && res.data.ready_to_work !== undefined) {
                     setIsAvailable(!!res.data.ready_to_work);
                 }
@@ -30,7 +31,7 @@ const ReadyToWork = () => {
     // Save Logic
     const handleSave = async () => {
         try {
-            await axios.post('http://localhost:5000/api/jobs/save-ready-status', {
+            await axios.post(`${API}/jobs/save-ready-status`, {
                 userId: 123,
                 readyToWork: isAvailable
             });

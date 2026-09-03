@@ -1,3 +1,4 @@
+import { API } from '../lib/api';
 import React, { useEffect } from 'react';
 import {
   X, Calendar, MapPin, CheckCircle2, ArrowUpRight,
@@ -81,7 +82,7 @@ const ApplicationDetailDrawer: React.FC<DrawerProps> = ({ isOpen, onClose, job }
     if (!window.confirm("Are you sure you want to withdraw?")) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/jobs/withdraw/${appId}`, {
+      const response = await fetch(`${API}/jobs/withdraw/${appId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' }
       });

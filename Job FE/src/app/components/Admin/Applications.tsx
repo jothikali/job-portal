@@ -1,3 +1,4 @@
+import { API } from '../../lib/api';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ApplicationDetails from './ApplicationDetails';
@@ -39,7 +40,7 @@ const Applications = () => {
     const fetchApplications = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:5000/api/admin/applications');
+            const response = await fetch(`${API}/admin/applications`);
             const data = await response.json();
             const appsData = Array.isArray(data) ? data : (data.data || []);
             setApplications(appsData);

@@ -1,3 +1,4 @@
+import { API } from '../lib/api';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Briefcase, Mail, Lock, ArrowRight, Loader2, Chrome, Github, ShieldCheck, User } from 'lucide-react';
@@ -28,7 +29,7 @@ export function Signup() {
 
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/auth/signup', {
+            const response = await fetch(`${API}/auth/signup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

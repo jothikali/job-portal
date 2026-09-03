@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: job-portal-api
+    env: node
+    region: singapore   # closest to India — change to oregon/frankfurt if needed
+    plan: free
+    rootDir: .
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000         # Render assigns this automatically, but declaring it is safe
+      - key: DB_HOST
+        sync: false          # Set manually in Render dashboard
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_SSL
+        value: "true"        # Aiven requires SSL
+      - key: FRONTEND_URL
+        sync: false          # Your Vercel URL — set in dashboard
+      - key: JWT_SECRET
+        sync: false          # Set manually — never put in code

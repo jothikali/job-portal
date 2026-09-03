@@ -1,3 +1,4 @@
+import { API } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -55,9 +56,9 @@ export function RecruiterDashboard() {
     try {
       setLoading(true);
       const [candRes, appRes, jobsRes] = await Promise.all([
-        fetch('http://localhost:5000/api/candidates'),
-        fetch('http://localhost:5000/api/applications'),
-        fetch('http://localhost:5000/api/jobs')
+        fetch(`${API}/candidates`),
+        fetch(`${API}/applications`),
+        fetch(`${API}/jobs`)
       ]);
 
       // JSON-ஆக மாற்றுவதற்கு முன் Response OK-வா என்று பார்க்கிறோம்
@@ -86,7 +87,7 @@ export function RecruiterDashboard() {
     setIsPosting(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/jobs", {
+      const response = await fetch("${API}/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

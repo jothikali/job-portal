@@ -1,3 +1,4 @@
+import { API } from '../../lib/api';
 import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { PlusCircle, Users, Briefcase, BarChart3, Search, Bell, LogOut, Settings, Award, Menu, X } from 'lucide-react';
@@ -18,7 +19,7 @@ const AdminDashboard = () => {
     const [stats, setStats] = useState({ totalJobs: 0, applicants: 0, pending: 0 });
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/jobs/stats')
+        fetch(`${API}/jobs/stats`)
             .then(res => { if (!res.ok) throw new Error("not ok"); return res.json(); })
             .then(data => setStats({ totalJobs: data.totalJobs || 0, applicants: data.applicants || 0, pending: data.pending || 0 }))
             .catch(err => console.error("Fetch error:", err));

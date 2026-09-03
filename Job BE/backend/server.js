@@ -22,8 +22,29 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // 3. GLOBAL MIDDLEWARES
-app.use(cors()); 
-app.use(express.json()); 
+
+// Allowed origins: local dev + Vercel production
+// Set FRONTEND_URL in Render environment variables to your Vercel URL
+// e.g. FRONTEND_URL=https://your-app.vercel.app
+const allowedOrigins = [
+    'http://localhost:5173',   // Vite dev server default
+    'http://localhost:3000',   // fallback
+    process.env.FRONTEND_URL,  // Vercel production URL (set in Render dashboard)
+].filter(Boolean); // remove undefined if FRONTEND_URL not set yet
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (Postman, mobile apps, server-to-server)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        callback(new Error(`CORS blocked: origin ${origin} not allowed`));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+app.use(express.json());
 
 // 4. STATIC FOLDER SETUP (MIGAVUM MUKKIYAM)
 // Intha line-la thaan browser-ku unga uploads folder permission kidaikkum

@@ -1,3 +1,4 @@
+import { API } from '../../lib/api';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
@@ -33,8 +34,8 @@ const AdminReview = () => {
             try {
                 setLoading(true);
                 const [candRes, questRes] = await Promise.all([
-                    axios.get('http://localhost:5000/api/aptitude/admin/results'),
-                    axios.get('http://localhost:5000/api/aptitude/questions')
+                    axios.get(`${API}/aptitude/admin/results`),
+                    axios.get(`${API}/aptitude/questions`)
                 ]);
                 setCandidates(candRes.data);
                 setQuestions(questRes.data);
@@ -55,7 +56,7 @@ const AdminReview = () => {
         }
 
         try {
-            const res = await axios.put(`http://localhost:5000/api/admin/update-round`, {
+            const res = await axios.put(`${API}/admin/update-round`, {
                 applicationId: selectedCandidate?.id,
                 status: status,
                 date: status === 'TECHNICAL ROUND' ? interviewDate : null,

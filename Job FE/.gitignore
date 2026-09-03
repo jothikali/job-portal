@@ -1,3 +1,9 @@
 node_modules
 dist
+
+# Local env — contains real localhost secrets, never commit
 .env
+.env.local
+
+# .env.production is safe to commit (just the Render URL, no secrets)
+# If you add DB passwords etc. to it later, add it here too

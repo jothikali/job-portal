@@ -1,3 +1,4 @@
+import { API } from '../lib/api';
 import React, { useEffect, useState } from 'react';
 import { Search, Star, Briefcase, TrendingUp, PenLine, X, Bookmark, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -24,7 +25,7 @@ const CompanyReviews = () => {
 
     const fetchReviews = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/reviews');
+            const response = await axios.get(`${API}/reviews`);
             setCompanies(response.data);
             setLoading(false);
         } catch (error) {
@@ -44,7 +45,7 @@ const CompanyReviews = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/api/reviews', formData);
+            await axios.post(`${API}/reviews`, formData);
             setIsModalOpen(false);
             fetchReviews();
             toast.success("Review submitted successfully!");

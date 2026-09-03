@@ -1,3 +1,4 @@
+import { API } from '../lib/api';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Archive as ArchiveIcon, Briefcase, Calendar } from 'lucide-react';
@@ -21,7 +22,7 @@ const ArchivePage = () => {
         const fetchArchive = async () => {
             try {
                 // Using applied-jobs endpoint because standard archive endpoint might filter out 'interview' status
-                const res = await axios.get(`http://localhost:5000/api/jobs/applied-jobs/${user.id}`);
+                const res = await axios.get(`${API}/jobs/applied-jobs/${user.id}`);
                 const allData = Array.isArray(res.data) ? res.data : [];
                 const now = new Date();
 

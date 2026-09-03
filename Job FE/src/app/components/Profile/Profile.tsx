@@ -1,3 +1,4 @@
+import { API, UPLOADS } from '../../lib/api';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -42,7 +43,7 @@ export function Profile() {
             console.log("Fetching for Clean User ID:", userId);
 
             if (userId) {
-                const response = await axios.get(`http://localhost:5000/api/user/full-profile/${userId}`);
+                const response = await axios.get(`${API}/user/full-profile/${userId}`);
 
                 if (response.data) {
                     setProfile(response.data);
@@ -67,7 +68,7 @@ export function Profile() {
     // --- Resume Handlers ---
     const handleView = () => {
         if (profile?.resume_url) {
-            window.open(`http://localhost:5000/uploads/resumes/${profile.resume_url}`, '_blank');
+            window.open(`${UPLOADS}/resumes/${profile.resume_url}`, '_blank');
         }
         setIsResumeMenuOpen(false);
     };
@@ -75,7 +76,7 @@ export function Profile() {
     const handleDownload = () => {
         if (profile?.resume_url) {
             const link = document.createElement('a');
-            link.href = `http://localhost:5000/uploads/resumes/${profile.resume_url}`;
+            link.href = `${UPLOADS}/resumes/${profile.resume_url}`;
             link.setAttribute('download', profile.resume_url);
             document.body.appendChild(link);
             link.click();
@@ -88,7 +89,7 @@ export function Profile() {
         if (!window.confirm("Are you sure you want to delete your resume?")) return;
         try {
             const userId = profile?.userId || profile?.id;
-            await axios.delete(`http://localhost:5000/api/user/delete-resume/${userId}`);
+            await axios.delete(`${API}/user/delete-resume/${userId}`);
             fetchProfileData();
         } catch (error) { console.error(error); }
         setIsResumeMenuOpen(false);
@@ -107,7 +108,7 @@ export function Profile() {
 
         try {
             setUploading(true);
-            await axios.post('http://localhost:5000/api/user/upload-resume', formData);
+            await axios.post(`${API}/user/upload-resume`, formData);
             fetchProfileData();
         } catch (error) {
             toast.error("Resume upload failed.");

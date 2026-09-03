@@ -1,3 +1,4 @@
+import { API } from '../lib/api';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -72,7 +73,7 @@ export function JobApplication() {
     useEffect(() => {
         const fetchSkills = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/skills');
+                const response = await fetch(`${API}/skills`);
                 const data = await response.json();
                 setAllSkills(data);
             } catch (err) {
@@ -110,7 +111,7 @@ export function JobApplication() {
                 data.append('resume', formData.resume);
             }
 
-            const response = await fetch('http://localhost:5000/api/jobs/apply', {
+            const response = await fetch(`${API}/jobs/apply`, {
                 method: 'POST',
                 body: data
             });

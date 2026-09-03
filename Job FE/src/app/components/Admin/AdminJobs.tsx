@@ -1,3 +1,4 @@
+import { API } from '../../lib/api';
 import { useState, useEffect } from "react";
 import {
     MoreVertical, Edit3, Trash2, Eye,
@@ -22,7 +23,7 @@ export function AdminJobs() {
     const handleDelete = async (id: number) => {
         if (window.confirm("Are you sure you want to delete this job?")) {
             try {
-                const response = await fetch(`http://localhost:5000/api/jobs/${id}`, {
+                const response = await fetch(`${API}/jobs/${id}`, {
                     method: "DELETE",
                 });
 
@@ -38,7 +39,7 @@ export function AdminJobs() {
     
     // Fetching jobs from your MySQL Backend
     useEffect(() => {
-        fetch("http://localhost:5000/api/jobs")
+        fetch("${API}/jobs")
             .then(res => res.json())
             .then(data => setJobs(data))
             .catch(err => console.error(err));

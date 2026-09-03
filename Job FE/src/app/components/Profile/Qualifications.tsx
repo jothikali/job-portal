@@ -1,3 +1,4 @@
+import { API } from '../../lib/api';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -29,7 +30,7 @@ const Qualifications = () => {
     const fetchQualifications = async () => {
         try {
             // Replace with your actual API endpoint to get all qualifications for the user
-            const res = await axios.get('http://localhost:5000/api/qualifications/all/1');
+            const res = await axios.get(`${API}/qualifications/all/1`);
             setSavedData(res.data);
         } catch (err) {
             console.error("Fetch error:", err);
@@ -49,15 +50,15 @@ const Qualifications = () => {
         if (val.length > 0) {
             try {
                 let endpoint = '';
-                if (activeModal === 'lic' && target === 'main') endpoint = `http://localhost:5000/api/jobs/driving-licenses?q=${val}`;
-                else if (activeModal === 'cert' && target === 'main') endpoint = `http://localhost:5000/api/jobs/certifications?q=${val}`;
-                else if (activeModal === 'lang' && target === 'main') endpoint = `http://localhost:5000/api/jobs/languages?q=${val}`;
-                else if (target === 'sub') endpoint = `http://localhost:5000/api/jobs/company-suggestions?q=${val}`;
+                if (activeModal === 'lic' && target === 'main') endpoint = `${API}/jobs/driving-licenses?q=${val}`;
+                else if (activeModal === 'cert' && target === 'main') endpoint = `${API}/jobs/certifications?q=${val}`;
+                else if (activeModal === 'lang' && target === 'main') endpoint = `${API}/jobs/languages?q=${val}`;
+                else if (target === 'sub') endpoint = `${API}/jobs/company-suggestions?q=${val}`;
                 else if (type === 'edu') {
-                    if (target === 'main') endpoint = `http://localhost:5000/api/jobs/edu-levels?q=${val}`;
-                    else if (target === 'field') endpoint = `http://localhost:5000/api/jobs/edu-fields?q=${val}`;
-                } else if (type === 'skill' && target === 'main') endpoint = `http://localhost:5000/api/skills/suggestions?q=${val}`;
-                else if (type === 'work' && target === 'main') endpoint = `http://localhost:5000/api/skills/experience-suggestions?q=${val}`;
+                    if (target === 'main') endpoint = `${API}/jobs/edu-levels?q=${val}`;
+                    else if (target === 'field') endpoint = `${API}/jobs/edu-fields?q=${val}`;
+                } else if (type === 'skill' && target === 'main') endpoint = `${API}/skills/suggestions?q=${val}`;
+                else if (type === 'work' && target === 'main') endpoint = `${API}/skills/experience-suggestions?q=${val}`;
 
                 if (endpoint) {
                     const res = await axios.get(endpoint);
@@ -90,10 +91,10 @@ const Qualifications = () => {
             };
 
             // Common save endpoint
-            await axios.post('http://localhost:5000/api/qualifications/add', payload);
+            await axios.post(`${API}/qualifications/add`, payload);
 
             if (activeModal === 'skill') {
-                await axios.post('http://localhost:5000/api/skills/save', { skill_name: mainValue });
+                await axios.post(`${API}/skills/save`, { skill_name: mainValue });
             }
 
             toast.success(`${activeModal} saved successfully!`);

@@ -1,3 +1,4 @@
+import { API } from '../../lib/api';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -76,7 +77,7 @@ const AptitudePage = () => {
         setFinalScore(score);
 
         try {
-            await axios.post('http://localhost:5000/api/aptitude/submit-test', {
+            await axios.post(`${API}/aptitude/submit-test`, {
                 applicationId: id,
                 answers: answersRef.current,
                 score,
@@ -117,7 +118,7 @@ const AptitudePage = () => {
 
     // ─── Fetch questions ──────────────────────────────────────────────────────
     useEffect(() => {
-        axios.get('http://localhost:5000/api/aptitude/questions')
+        axios.get(`${API}/aptitude/questions`)
             .then(res => {
                 if (res.data.length === 0) navigate('/my-jobs');
                 setQuestions(res.data);
