@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-    ArrowLeft, Bookmark, Bell,
+    ArrowLeft, Bookmark, Bell, Briefcase,
     Plus, UserRound, Clock, Banknote, MapPin, Home, Eye, X
 } from 'lucide-react';
 import ProfileMenu from '../../pages/ProfileDropdown';
@@ -186,7 +186,8 @@ const JobPreferences = () => {
                                     title: 'Job types',
                                     value: savedJobTypes.join(', '),
                                     hasData: savedJobTypes.length > 0,
-                                    Icon: action: () => setIsTypeModalOpen(true)
+                                    Icon: Briefcase,
+                                    action: () => setIsTypeModalOpen(true)
                                 },
                                 {
                                     title: 'Work schedule',
