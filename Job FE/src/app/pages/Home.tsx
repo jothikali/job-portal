@@ -1,5 +1,6 @@
+import BrandLogo from '../components/BrandLogo';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, MapPin, Briefcase, ChevronRight, Menu, X } from 'lucide-react';
+import { Search, MapPin, ChevronRight, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { InstallNavButton } from '../components/InstallBanner';
 
@@ -28,12 +29,7 @@ export function Home() {
           {/* Left: Logo + nav links */}
           <div className="flex items-center gap-4 md:gap-12 shrink-0">
             <Link to="/" className="flex items-center gap-2 md:gap-3 group flex-shrink-0">
-              <div className="bg-white p-1.5 md:p-2 rounded-xl shadow-sm shrink-0">
-                <Briefcase className="size-5 md:size-6 text-[#0F172A]" />
-              </div>
-              <span className="font-bold text-lg md:text-2xl tracking-tighter text-white whitespace-nowrap">
-                JobPortal
-              </span>
+              <BrandLogo />
             </Link>
 
             {/* Desktop nav links */}
@@ -143,11 +139,10 @@ export function Home() {
 
           {/* Logo + wordmark — scales on mobile */}
           <div className="flex items-center gap-3 md:gap-5 mb-6 md:mb-8 flex-wrap justify-center">
-            <div className="bg-[#0F172A] p-3 md:p-5 rounded-[20px] md:rounded-[28px] shadow-2xl shadow-blue-200 rotate-[-5deg] shrink-0">
-              <Briefcase className="size-8 md:size-16 text-white" />
-            </div>
+            <img src="/icons/job-logo.jpeg" alt="Job Nest"
+                 className="h-14 md:h-20 w-auto object-contain rounded-[20px] md:rounded-[28px] shadow-2xl shadow-blue-200 rotate-[-5deg] shrink-0" />
             <span className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter text-[#0F172A]">
-              JobPortal
+              Job Nest
             </span>
           </div>
 

@@ -27,6 +27,13 @@ const AdminDashboard = () => {
 
     const navTo = (path: string) => { navigate(path); setSidebarOpen(false); };
 
+    // ── Logout ──
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        navigate('/login');
+    };
+
     const navItems = [
         { path: '/admin',              icon: <BarChart3 size={20} />,  label: 'Overview'      },
         { path: '/admin/post-job',     icon: <PlusCircle size={20} />, label: 'Post a Job'    },
@@ -38,11 +45,10 @@ const AdminDashboard = () => {
     const Sidebar = () => (
         <nav className="flex flex-col h-full">
             <div className="flex items-center justify-between gap-3 mb-10 px-2">
-                <div className="flex items-center gap-3">
-                    <div className="size-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                        <Briefcase size={22} className="text-white" />
-                    </div>
-                    <h2 className="text-xl font-black tracking-tighter italic text-white">JOB PORTAL</h2>
+                <div className="flex items-center gap-2.5">
+                    <img src="/icons/job-logo.jpeg" alt="Job Nest"
+                         className="h-9 w-9 object-contain rounded-xl shadow-lg shadow-blue-500/20 shrink-0" />
+                    <h2 className="text-xl font-black tracking-tighter italic text-white">JOB NEST</h2>
                 </div>
                 {/* Close button for mobile drawer */}
                 <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-slate-400 hover:text-white">
@@ -69,7 +75,10 @@ const AdminDashboard = () => {
             </div>
 
             <div className="pt-6 border-t border-slate-800">
-                <button className="w-full flex items-center gap-3 p-3.5 text-slate-400 hover:text-red-400 transition-colors">
+                <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 p-3.5 text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
+                >
                     <LogOut size={20} /> <span className="font-bold text-sm">Logout</span>
                 </button>
             </div>

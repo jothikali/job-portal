@@ -1,3 +1,4 @@
+import BrandLogo from '../components/BrandLogo';
 import { API } from '../lib/api';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
@@ -138,10 +139,7 @@ export function JobListings() {
       <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#0F172A] text-white py-4 px-4 md:px-10 shadow-md flex items-center justify-between border-b border-white/10">
         <div className="flex items-center gap-4 md:gap-12">
           <Link to="/" className="flex items-center gap-2 md:gap-3 group">
-            <div className="bg-white p-1.5 md:p-2 rounded-xl shadow-sm">
-              <Briefcase className="size-5 md:size-6 text-[#0F172A]" />
-            </div>
-            <span className="font-bold text-lg md:text-2xl tracking-tighter text-white">JobPortal</span>
+            <BrandLogo />
           </Link>
           <div className="hidden md:flex items-center gap-10 text-[16px] font-bold">
             <Link to="/home" className="text-slate-300 hover:text-white transition-colors">Home</Link>

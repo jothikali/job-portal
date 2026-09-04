@@ -1,6 +1,6 @@
 {
-  "name": "Enterprise Job Portal ATS",
-  "short_name": "JobPortal",
+  "name": "Job Nest — Find, Connect & Grow",
+  "short_name": "Job Nest",
   "description": "Find jobs, track applications, and manage your career journey — all in one place.",
   "start_url": "/",
   "scope": "/",
@@ -12,19 +12,18 @@
   "categories": ["business", "productivity"],
   "icons": [
     {
-      "src": "/icons/icon-192.svg",
+      "src": "/icons/job-logo.jpeg",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/icon-512.svg",
+      "src": "/icons/job-logo.jpeg",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ],
-  "screenshots": [],
   "shortcuts": [
     {
       "name": "Browse Jobs",

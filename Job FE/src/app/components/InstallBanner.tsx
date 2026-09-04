@@ -16,7 +16,7 @@ export function InstallNavButton() {
     <button
       onClick={triggerInstall}
       className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-blue-600/30"
-      title="Install JobPortal on your device"
+      title="Install Job Nest on your device"
     >
       <Download size={13} />
       <span className="hidden sm:inline">Install App</span>
@@ -45,7 +45,7 @@ export function InstallBottomBanner() {
         <div className="flex-1 min-w-0">
           <p className="text-white font-black text-sm leading-tight">Add to Home Screen</p>
           <p className="text-slate-400 text-[11px] font-medium mt-0.5 leading-snug">
-            Install JobPortal for faster access and offline support.
+            Install Job Nest for faster access and offline support.
           </p>
           <div className="flex items-center gap-2 mt-3">
             <button

@@ -2,7 +2,7 @@
  * Central API base URL — reads from Vite env at build time.
  * Set VITE_API_URL in:
  *   - .env.local       → http://localhost:5000/api  (local dev)
- *   - Vercel dashboard → https://job-portal-api.onrender.com/api  (production)
+ *   - Vercel dashboard → https://Job Nest-api.onrender.com/api  (production)
  *
  * Usage:
  *   import { API, UPLOADS } from '../lib/api';

@@ -1,6 +1,6 @@
 import { API } from '../lib/api';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Briefcase, Mail, Lock, ArrowRight, Chrome, Github, Loader2 } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Chrome, Github, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from '../lib/toast';
 
@@ -54,7 +54,8 @@ export function Login() {
             {/* Left Side: Branding — hidden on mobile */}
             <div className="hidden lg:flex w-1/2 bg-[#0F172A] items-center justify-center p-12 relative overflow-hidden">
                 <div className="max-w-md z-10 text-white">
-                    <Briefcase size={40} className="mb-6 text-blue-500" />
+                    <img src="/icons/job-logo.jpeg" alt="Job Nest"
+                         className="h-14 w-14 object-contain rounded-2xl shadow-2xl shadow-blue-500/30 mb-6" />
                     <h1 className="text-5xl font-black leading-tight mb-6 tracking-tighter">Find the job that fits your life.</h1>
                     <p className="text-slate-400 text-lg font-medium">Join thousands of companies and millions of job seekers today.</p>
                 </div>
@@ -67,11 +68,10 @@ export function Login() {
                 <div className="w-full max-w-md bg-white rounded-[24px] md:rounded-[32px] shadow-2xl shadow-slate-200/60 p-6 sm:p-10 border border-slate-100">
 
                     {/* Mobile logo — only shown on small screens */}
-                    <div className="flex items-center gap-2 mb-6 lg:hidden">
-                        <div className="bg-[#0F172A] p-2 rounded-xl">
-                            <Briefcase size={20} className="text-blue-400" />
-                        </div>
-                        <span className="font-black text-lg text-slate-900 tracking-tight">JobPortal</span>
+                    <div className="flex items-center gap-2.5 mb-6 lg:hidden">
+                        <img src="/icons/job-logo.jpeg" alt="Job Nest"
+                             className="h-8 w-8 object-contain rounded-xl shadow-sm" />
+                        <span className="font-black text-lg text-slate-900 tracking-tight">Job Nest</span>
                     </div>
 
                     <div className="mb-8 text-left">

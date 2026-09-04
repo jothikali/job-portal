@@ -149,9 +149,10 @@ export function RecruiterDashboard() {
       {/* Sidebar */}
       <aside className="w-72 bg-card border-r border-border flex-shrink-0 sticky top-0 h-screen">
         <div className="p-6 border-b border-border">
-          <div className="flex items-center gap-2">
-            <Briefcase className="size-6 text-accent" />
-            <span className="font-bold text-xl tracking-tight">JobPortal</span>
+          <div className="flex items-center gap-2.5">
+            <img src="/icons/job-logo.jpeg" alt="Job Nest"
+                 className="h-7 w-7 object-contain rounded-lg" />
+            <span className="font-bold text-xl tracking-tight">Job Nest</span>
           </div>
           <p className="text-xs font-bold text-muted-foreground mt-1 uppercase">Recruiter Panel</p>
         </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Briefcase, Mail, Lock, User, ShieldCheck, Loader2, ArrowRight, Chrome, Github } from 'lucide-react';
+import { Mail, Lock, User, ShieldCheck, Loader2, ArrowRight, Chrome, Github } from 'lucide-react';
 import { API } from '../lib/api';
 import { toast } from '../lib/toast';
 
@@ -163,11 +163,10 @@ export function Auth() {
                                  }`}>
 
                     {/* Logo */}
-                    <div className="flex items-center gap-2 mb-6">
-                        <div className="bg-[#0F172A] p-2 rounded-xl shadow-md">
-                            <Briefcase size={18} className="text-blue-400" />
-                        </div>
-                        <span className="font-black text-lg text-slate-900 tracking-tight">JobPortal</span>
+                    {/* Logo — Sign In side */}
+                    <div className="flex items-center gap-2.5 mb-6">
+                        <img src="/icons/job-logo.jpeg" alt="Job Nest" className="h-8 w-8 object-contain rounded-xl shadow-sm" />
+                        <span className="font-black text-lg text-slate-900 tracking-tight">Job Nest</span>
                     </div>
 
                     <h2 className="text-2xl font-black text-slate-900 mb-1">Sign In</h2>
@@ -228,11 +227,10 @@ export function Auth() {
                                  }`}>
 
                     {/* Logo */}
-                    <div className="flex items-center gap-2 mb-6">
-                        <div className="bg-blue-600 p-2 rounded-xl shadow-md">
-                            <Briefcase size={18} className="text-white" />
-                        </div>
-                        <span className="font-black text-lg text-slate-900 tracking-tight">JobPortal</span>
+                    {/* Logo — Sign Up side */}
+                    <div className="flex items-center gap-2.5 mb-6">
+                        <img src="/icons/job-logo.jpeg" alt="Job Nest" className="h-8 w-8 object-contain rounded-xl shadow-sm" />
+                        <span className="font-black text-lg text-slate-900 tracking-tight">Job Nest</span>
                     </div>
 
                     <h2 className="text-2xl font-black text-slate-900 mb-1">Create Account</h2>
@@ -296,13 +294,10 @@ export function Auth() {
                     {/* Overlay content */}
                     <div className="relative z-10 flex flex-col items-center justify-center w-full px-10 text-center">
 
-                        {/* Briefcase icon */}
-                        <div className={`p-4 rounded-[20px] mb-6 shadow-2xl transition-all duration-700
-                                        ${isSignUp
-                                            ? 'bg-blue-600 shadow-blue-500/40'
-                                            : 'bg-white/10 backdrop-blur-sm border border-white/20'
-                                        }`}>
-                            <Briefcase size={32} className="text-white" />
+                        {/* Logo on overlay */}
+                        <div className="mb-6">
+                            <img src="/icons/job-logo.jpeg" alt="Job Nest"
+                                 className="h-14 w-14 object-contain rounded-[20px] shadow-2xl mx-auto" />
                         </div>
 
                         {/* CTA copy — swaps based on which side is active */}

@@ -1,7 +1,7 @@
 import { API } from '../lib/api';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Briefcase, Mail, Lock, ArrowRight, Loader2, Chrome, Github, ShieldCheck, User } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Loader2, Chrome, Github, ShieldCheck, User } from 'lucide-react';
 import { toast } from '../lib/toast';
 
 export function Signup() {
@@ -36,8 +36,7 @@ export function Signup() {
                     username: formData.username,
                     email: formData.email,
                     password: formData.password
-                }),
-            });
+                })});
 
             if (response.ok) {
                 toast.success("Account created successfully! 🔥");
@@ -57,9 +56,8 @@ export function Signup() {
         <div className="min-h-screen bg-white flex overflow-x-hidden font-sans">
             <div className="hidden lg:flex w-1/2 bg-[#0F172A] items-center justify-center p-12 relative overflow-hidden">
                 <div className="max-w-md z-10 text-white">
-                    <div className="bg-blue-600 w-fit p-3 rounded-2xl mb-8 shadow-xl shadow-blue-500/20">
-                        <Briefcase size={28} className="text-white" />
-                    </div>
+                    <img src="/icons/job-logo.jpeg" alt="Job Nest"
+                         className="h-14 w-14 object-contain rounded-2xl shadow-2xl shadow-blue-500/30 mb-8" />
                     <h1 className="text-5xl font-black leading-tight mb-6 tracking-tighter">
                         Start your <br/> professional <span className="text-blue-500">Journey.</span>
                     </h1>
@@ -71,11 +69,10 @@ export function Signup() {
                 <div className="w-full max-w-[440px] bg-white rounded-[24px] md:rounded-[32px] shadow-2xl shadow-slate-200/60 p-6 sm:p-8 md:p-10 border border-slate-100">
 
                     {/* Mobile logo */}
-                    <div className="flex items-center gap-2 mb-6 lg:hidden">
-                        <div className="bg-blue-600 p-2 rounded-xl">
-                            <Briefcase size={18} className="text-white" />
-                        </div>
-                        <span className="font-black text-lg text-slate-900 tracking-tight">JobPortal</span>
+                    <div className="flex items-center gap-2.5 mb-6 lg:hidden">
+                        <img src="/icons/job-logo.jpeg" alt="Job Nest"
+                             className="h-8 w-8 object-contain rounded-xl shadow-sm" />
+                        <span className="font-black text-lg text-slate-900 tracking-tight">Job Nest</span>
                     </div>
 
                     <div className="mb-6 text-left">

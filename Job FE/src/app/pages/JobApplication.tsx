@@ -135,12 +135,14 @@ export function JobApplication() {
             {/* --- TOP HEADER --- */}
             <header className="h-16 md:h-20 bg-white border-b border-slate-200 px-4 md:px-8 flex items-center justify-between sticky top-0 z-50 shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="bg-white p-1.5 rounded-xl shadow-sm">
-                        <Briefcase className="size-5 text-[#0F172A]" />
-                    </div>
+                    <img
+                        src="/icons/job-logo.jpeg"
+                        alt="Job Nest"
+                        className="h-8 w-8 object-contain rounded-xl shadow-sm"
+                    />
                     <div>
                         <h2 className="text-xs font-black text-slate-800 tracking-tight uppercase">Apply for Position</h2>
-                        <p className="text-[9px] text-blue-600 font-bold uppercase tracking-widest hidden sm:block">Dotok Communications</p>
+                        <p className="text-[9px] text-blue-600 font-bold uppercase tracking-widest hidden sm:block">Job Nest</p>
                     </div>
                 </div>
                 {/* Progress Bar — compact on mobile */}
