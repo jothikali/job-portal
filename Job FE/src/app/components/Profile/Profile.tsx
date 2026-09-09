@@ -11,6 +11,64 @@ import {
     CheckCircle2, Loader2, CloudUpload, MoreVertical, Eye, Download, Trash2, ChevronRight
 } from 'lucide-react';
 
+// ─── Profile Completion Ring ──────────────────────────────────────────────────
+function CompletionRing({ profile, navigate }: { profile: any; navigate: (p: string) => void }) {
+    const checks = [
+        { label: 'Name',    done: !!(profile?.name   && profile.name   !== 'User'), path: '/edit-contact' },
+        { label: 'Phone',   done: !!(profile?.phone  && profile.phone  !== 'null' && profile.phone !== ''),  path: '/edit-contact' },
+        { label: 'Resume',  done: !!(profile?.resume_url && profile.resume_url !== ''), path: '/profile' },
+        { label: 'Summary', done: !!(profile?.summary && profile.summary !== ''),  path: '/edit-summary' },
+        { label: 'Skills',  done: !!(profile?.role   && profile.role   !== ''),    path: '/qualifications' },
+    ];
+
+    const pct   = Math.round((checks.filter(c => c.done).length / checks.length) * 100);
+    const r     = 32;
+    const circ  = 2 * Math.PI * r;
+    const dash  = (pct / 100) * circ;
+    const color = pct === 100 ? '#10B981' : pct >= 60 ? '#3B82F6' : '#F59E0B';
+
+    const firstMissing = checks.find(c => !c.done);
+
+    return (
+        <div
+            onClick={() => firstMissing && navigate(firstMissing.path)}
+            className={`flex items-center gap-4 bg-white border rounded-2xl px-5 py-4 shadow-sm mt-4 ${pct < 100 ? 'cursor-pointer hover:border-blue-300 transition-colors' : ''}`}
+        >
+            {/* SVG ring */}
+            <div className="relative shrink-0">
+                <svg width="80" height="80" className="-rotate-90">
+                    <circle cx="40" cy="40" r={r} fill="none" stroke="#E2E8F0" strokeWidth="6" />
+                    <circle cx="40" cy="40" r={r} fill="none" stroke={color} strokeWidth="6"
+                        strokeDasharray={`${dash} ${circ}`} strokeLinecap="round"
+                        style={{ transition: 'stroke-dasharray 0.8s ease' }} />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-base font-black text-slate-800 rotate-90"
+                      style={{ color }}>
+                    {pct}%
+                </span>
+            </div>
+
+            <div className="flex-1 min-w-0">
+                <p className="font-black text-sm text-slate-800">
+                    {pct === 100 ? '🎉 Profile complete!' : 'Complete your profile'}
+                </p>
+                <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                    {pct === 100
+                        ? 'You are visible to all recruiters.'
+                        : `${checks.filter(c => !c.done).length} section${checks.filter(c => !c.done).length > 1 ? 's' : ''} remaining — click to complete`}
+                </p>
+                <div className="flex gap-1.5 mt-2 flex-wrap">
+                    {checks.map(c => (
+                        <span key={c.label} className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${c.done ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
+                            {c.done ? '✓' : '+'} {c.label}
+                        </span>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export function Profile() {
     const navigate = useNavigate();
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -210,6 +268,9 @@ export function Profile() {
                     <button onClick={() => navigate('/edit-contact')} className="mt-8 bg-slate-900 text-white px-10 py-4 rounded-2xl font-black hover:bg-blue-600 transition-all flex items-center gap-3">
                         <Edit3 size={20} /> Edit Header
                     </button>
+
+                    {/* Profile completion ring */}
+                    {profile && <CompletionRing profile={profile} navigate={navigate} />}
                 </div>
             </main>
             <main className="max-w-4xl mx-auto px-6 space-y-10">

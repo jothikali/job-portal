@@ -1,7 +1,7 @@
 import { API, UPLOADS } from '../../lib/api';
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Calendar, Clock, FileText, CheckCircle, Mail, Briefcase, Zap, Gift, History } from 'lucide-react';
+import { Calendar, Clock, FileText, CheckCircle, Mail, Briefcase, Zap, Gift, History, Send } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { toast } from '../../lib/toast';
 
@@ -130,7 +130,49 @@ const ApplicationDetails = ({ isOpen, onClose, application, onUpdate }: any) => 
             toast.warn(`Please select Interview Date and Time before moving to ${nextStep.label}.`);
             return;
         }
-        handleUpdateStatus(nextStep.label, date || null, time || null);
+        handleUpdateStatusWithEmail(nextStep.label, date || null, time || null);
+    };
+
+    // ─── Approve + Email notification ────────────────────────────────────────
+    const handleUpdateStatusWithEmail = async (
+        newStatus: string,
+        interviewDate: string | null,
+        interviewTime: string | null
+    ) => {
+        setIsUpdating(true);
+        try {
+            // Call the dedicated shortlist+email endpoint
+            const res = await axios.post(`${API}/admin/shortlist-candidate`, {
+                applicationId:  application.id,
+                candidateEmail: application.email,
+                candidateName:  application.fullName,
+                jobTitle:       application.jobTitle,
+                stageName:      newStatus,
+                interviewDate,
+                interviewTime,
+                interviewLink:  null, // no link for shortlist — pass if available
+            });
+
+            if (res.data.success) {
+                toast.success(`✅ Candidate moved to ${newStatus} & notified via email!`);
+                onUpdate();
+                onClose();
+            } else {
+                toast.error('Update failed: ' + res.data.message);
+            }
+        } catch (error: any) {
+            console.error(error);
+            // If email fails, still try the plain status update
+            const errMsg = error?.response?.data?.error || '';
+            if (errMsg.includes('Invalid login') || errMsg.includes('EAUTH')) {
+                toast.warn('Status updated but email failed — check EMAIL_USER / EMAIL_PASS in Render.');
+                handleUpdateStatus(newStatus, interviewDate, interviewTime);
+            } else {
+                toast.error('Update failed! Please check backend connection.');
+            }
+        } finally {
+            setIsUpdating(false);
+        }
     };
 
     // Reject
@@ -385,6 +427,14 @@ const ApplicationDetails = ({ isOpen, onClose, application, onUpdate }: any) => 
                             </p>
                         )}
 
+                        {/* Email notification note */}
+                        <div className="flex items-center gap-2 px-3 py-2.5 bg-blue-50 rounded-2xl border border-blue-100">
+                            <Mail size={12} className="text-blue-500 shrink-0" />
+                            <p className="text-[10px] text-blue-700 font-bold">
+                                An automated email will be sent to <span className="font-black">{application.email}</span> notifying them of this stage update.
+                            </p>
+                        </div>
+
                         <div className="flex gap-4">
                             <button
                                 disabled={isUpdating}
@@ -396,9 +446,22 @@ const ApplicationDetails = ({ isOpen, onClose, application, onUpdate }: any) => 
                             <button
                                 disabled={isUpdating}
                                 onClick={handleProcessCandidate}
-                                className={`flex-[2] py-5 rounded-[24px] text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 disabled:opacity-50 ${nextStep.color}`}
+                                className={`flex-[2] py-5 rounded-[24px] text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 ${nextStep.color}`}
                             >
-                                {isUpdating ? 'Processing...' : `Approve & Move to ${nextStep.label}`}
+                                {isUpdating ? (
+                                    <>
+                                        <svg className="animate-spin size-4" viewBox="0 0 24 24" fill="none">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                        </svg>
+                                        Sending...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send size={13} />
+                                        Approve & Notify → {nextStep.label}
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>

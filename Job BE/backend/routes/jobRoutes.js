@@ -67,9 +67,36 @@ router.get('/certifications', getCertifications);
 router.get('/languages', getLanguages);
 router.get('/master-titles', getMasterTitles);
 router.post('/save-preferences', saveJobPreferences);
-
 router.get('/get-preferences/:userId', getJobPreferences);
 router.post('/save-ready-status', saveReadyToWorkStatus);
+
+// Job Alerts
+router.post('/alerts/subscribe',        async (req, res) => {
+    const { userId, keyword, category } = req.body;
+    if (!userId || !keyword) return res.status(400).json({ error: 'userId and keyword required' });
+    try {
+        const db = (await import('../config/db.js')).default;
+        await db.query(
+            'INSERT INTO job_alerts (user_id, keyword, category) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE category = VALUES(category)',
+            [userId, keyword.toLowerCase(), category || null]
+        );
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+router.get('/alerts/:userId',            async (req, res) => {
+    try {
+        const db = (await import('../config/db.js')).default;
+        const [rows] = await db.query('SELECT * FROM job_alerts WHERE user_id = ?', [req.params.userId]);
+        res.json(rows);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+router.delete('/alerts/:id',             async (req, res) => {
+    try {
+        const db = (await import('../config/db.js')).default;
+        await db.query('DELETE FROM job_alerts WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
 // --- 5. DYNAMIC & GENERAL ROUTES ---
 router.get('/', getAllJobs);
 router.get('/:id', getJobById); 

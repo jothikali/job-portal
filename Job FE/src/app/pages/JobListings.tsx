@@ -3,7 +3,7 @@ import { API } from '../lib/api';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { Bell, MessageSquare, Bookmark, User, ChevronDown, Search, MapPin, Briefcase, DollarSign, ChevronRight, CheckCircle } from 'lucide-react';
+import { Bell, Bookmark, Search, MapPin, Briefcase, DollarSign, ChevronRight, CheckCircle, Copy, Clock } from 'lucide-react';
 import ProfileMenu from './ProfileDropdown';
 import { toast } from '../lib/toast';
 import { InstallNavButton } from '../components/InstallBanner';
@@ -53,6 +53,22 @@ export function JobListings() {
       console.error("Error fetching applied jobs:", err);
     }
   };
+  // Copy job link to clipboard
+  const handleCopyLink = (jobId: string) => {
+    const url = `${window.location.origin}/apply/${jobId}`;
+    navigator.clipboard.writeText(url).then(() => toast.success("Job link copied!")).catch(() => toast.error("Copy failed"));
+  };
+
+  // Days until expiry badge helper
+  const getExpiryBadge = (closingDate?: string) => {
+    if (!closingDate) return null;
+    const diff = Math.ceil((new Date(closingDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    if (diff < 0)  return { label: 'Closed', cls: 'bg-red-50 text-red-600 border-red-100' };
+    if (diff <= 3) return { label: `Closes in ${diff}d`, cls: 'bg-red-50 text-red-600 border-red-100 animate-pulse' };
+    if (diff <= 7) return { label: `Closes in ${diff}d`, cls: 'bg-amber-50 text-amber-600 border-amber-100' };
+    return { label: `Closes in ${diff}d`, cls: 'bg-slate-50 text-slate-500 border-slate-100' };
+  };
+
   const handleSaveJob = async (jobId: string) => {
     try {
       if (!currentUser) {
@@ -110,17 +126,17 @@ export function JobListings() {
 
   const filteredJobs = useMemo(() => {
     const currentJobs = Array.isArray(jobs) ? jobs : [];
-
+    const now = Date.now();
     return currentJobs.filter(job => {
+      // Hide expired jobs (closing_date in the past)
+      if (job.closing_date && new Date(job.closing_date).getTime() < now) return false;
+
       const matchesSearch =
         (job.title?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
         (job.company?.toLowerCase() || "").includes(searchTerm.toLowerCase());
-
       const matchesLocation =
         (job.location?.toLowerCase() || "").includes(locationSearch.toLowerCase());
-
       const matchesType = selectedTypes.length === 0 || selectedTypes.includes(job.type);
-
       return matchesSearch && matchesLocation && matchesType;
     });
   }, [jobs, searchTerm, locationSearch, selectedTypes]);
@@ -211,19 +227,28 @@ export function JobListings() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   <span className="bg-slate-100 text-slate-700 text-[11px] font-black px-3 py-1 rounded-lg">{job.salary}</span>
                   <span className="bg-slate-100 text-slate-700 text-[11px] font-black px-3 py-1 rounded-lg">{job.type}</span>
+                  {/* Expiry badge */}
+                  {(() => { const b = getExpiryBadge(job.closing_date); return b ? <span className={`text-[11px] font-black px-3 py-1 rounded-lg border flex items-center gap-1 ${b.cls}`}><Clock size={10}/>{b.label}</span> : null; })()}
                 </div>
 
-                {/* ✅ UPDATE: Job card status view */}
-                <div className="mt-4 font-bold text-sm flex items-center gap-1">
-                  {appliedJobIds.includes(Number(job.id)) ? (
-                    <span className="text-green-600 flex items-center gap-1.5 bg-green-50 px-3 py-1 rounded-lg">
-                      Applied <CheckCircle size={14} />
-                    </span>
-                  ) : (
-                    <span className="text-primary flex items-center gap-1">
-                      Easily apply <ChevronRight className="size-4" />
-                    </span>
-                  )}
+                <div className="mt-3 font-bold text-sm flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    {appliedJobIds.includes(Number(job.id)) ? (
+                      <span className="text-green-600 flex items-center gap-1.5 bg-green-50 px-3 py-1 rounded-lg">
+                        Applied <CheckCircle size={14} />
+                      </span>
+                    ) : (
+                      <span className="text-primary flex items-center gap-1">
+                        Easily apply <ChevronRight className="size-4" />
+                      </span>
+                    )}
+                  </div>
+                  {/* Copy job link */}
+                  <button onClick={(e) => { e.stopPropagation(); handleCopyLink(job.id); }}
+                    className="p-1.5 text-slate-300 hover:text-blue-500 transition-colors rounded-lg hover:bg-blue-50"
+                    title="Copy job link">
+                    <Copy size={13} />
+                  </button>
                 </div>
               </div>
             ))

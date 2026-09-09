@@ -352,11 +352,10 @@ export const signupUser = async (req, res) => {
 };
 export const withdrawApplication = async (req, res) => {
     const { applicationId } = req.params;
+    const { reason } = req.body; // withdrawal reason — optional
     try {
-        // DELETE-ku badhila UPDATE status to 'Withdrawn'
-        const sql = "UPDATE applications SET status = 'Withdrawn' WHERE id = ?";
-        await db.query(sql, [applicationId]);
-
+        const sql = "UPDATE applications SET status = 'Withdrawn', withdrawal_reason = ? WHERE id = ?";
+        await db.query(sql, [reason || null, applicationId]);
         return res.status(200).json({
             status: "Success",
             message: "Application moved to archive!"

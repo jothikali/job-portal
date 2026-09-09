@@ -1,11 +1,21 @@
 import { API } from '../lib/api';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   X, Calendar, MapPin, CheckCircle2, ArrowUpRight,
   Clock, Building2, Layout, Video, User,
-  Mail, Briefcase, Banknote, History
+  Mail, Briefcase, Banknote, History, AlertTriangle
 } from 'lucide-react';
 import { toast } from '../lib/toast';
+import axios from 'axios';
+
+// ─── Withdrawal reason options ────────────────────────────────────────────────
+const WITHDRAW_REASONS = [
+    'Got another offer',
+    'Position no longer relevant',
+    'Salary too low',
+    'Not interested anymore',
+    'Other',
+];
 
 interface HistoryEntry { status: string; timestamp: string; }
 
@@ -71,32 +81,23 @@ function CandidateTimeline({ raw }: { raw?: string }) {
 }
 
 const ApplicationDetailDrawer: React.FC<DrawerProps> = ({ isOpen, onClose, job }) => {
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [withdrawReason, setWithdrawReason]       = useState('');
+  const [withdrawing, setWithdrawing]             = useState(false);
+
   const handleWithdraw = async () => {
-    const appId = job?.id; // backend-la namma mathuna appo idhu Application ID-ah irukkum
-
-    if (!appId) {
-      toast.error("Application ID not found!");
-      return;
-    }
-
-    if (!window.confirm("Are you sure you want to withdraw?")) return;
-
+    const appId = job?.id;
+    if (!appId) { toast.error("Application ID not found!"); return; }
+    if (!withdrawReason) { toast.warn("Please select a reason."); return; }
+    setWithdrawing(true);
     try {
-      const response = await fetch(`${API}/jobs/withdraw/${appId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.status === "Success") {
-        toast.success("Application moved to archive!");
-        onClose();
-        window.location.reload();
-      }
-    } catch (err) {
-      console.error("Fetch Error:", err);
-    }
+      await axios.put(`${API}/jobs/withdraw/${appId}`, { reason: withdrawReason });
+      toast.success("Application withdrawn.");
+      setShowWithdrawModal(false);
+      onClose();
+      window.location.reload();
+    } catch { toast.error("Withdrawal failed."); }
+    finally { setWithdrawing(false); }
   };
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden';
@@ -281,7 +282,7 @@ const ApplicationDetailDrawer: React.FC<DrawerProps> = ({ isOpen, onClose, job }
 
         {/* Footer */}
         <div className="px-4 md:px-8 py-5 md:py-8 bg-white border-t border-slate-100 flex flex-col sm:flex-row gap-3">
-          <button onClick={() => handleWithdraw()}
+          <button onClick={() => setShowWithdrawModal(true)}
             className="flex-1 px-6 py-3.5 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all">
             Withdraw
           </button>
@@ -290,6 +291,45 @@ const ApplicationDetailDrawer: React.FC<DrawerProps> = ({ isOpen, onClose, job }
           </button>
         </div>
       </div>
+
+      {/* ── Withdraw Reason Modal ────────────────────────────────────────── */}
+      {showWithdrawModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-[32px] w-full max-w-md p-8 shadow-2xl animate-in zoom-in duration-200">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2.5 bg-red-50 rounded-xl text-red-500"><AlertTriangle size={22} /></div>
+              <div>
+                <h3 className="font-black text-slate-900 text-lg">Withdraw Application</h3>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">Tell us why — this helps improve Job Nest.</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 mb-6">
+              {WITHDRAW_REASONS.map(reason => (
+                <label key={reason}
+                  className={`flex items-center gap-3 p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${withdrawReason === reason ? 'border-red-400 bg-red-50' : 'border-slate-100 hover:border-slate-200'}`}>
+                  <input type="radio" name="reason" value={reason}
+                    checked={withdrawReason === reason}
+                    onChange={() => setWithdrawReason(reason)}
+                    className="accent-red-500" />
+                  <span className="text-sm font-bold text-slate-700">{reason}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={() => { setShowWithdrawModal(false); setWithdrawReason(''); }}
+                className="flex-1 py-3.5 border-2 border-slate-100 rounded-2xl font-black text-xs uppercase text-slate-500 hover:bg-slate-50 transition-all">
+                Cancel
+              </button>
+              <button onClick={handleWithdraw} disabled={!withdrawReason || withdrawing}
+                className="flex-[2] py-3.5 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg transition-all active:scale-95 disabled:opacity-50">
+                {withdrawing ? 'Withdrawing...' : 'Confirm Withdraw'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

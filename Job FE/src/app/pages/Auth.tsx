@@ -144,18 +144,21 @@ export function Auth() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100
-                        flex items-center justify-center p-4 font-sans overflow-x-hidden">
+        <div className="min-h-screen w-full bg-white font-sans overflow-x-hidden flex">
 
-            {/* ── Outer card ──────────────────────────────────────────────── */}
-            <div className="relative w-full max-w-[900px] min-h-[560px] bg-white rounded-[32px]
-                            shadow-2xl shadow-blue-200/40 overflow-hidden flex">
+            {/* ── Full screen container ─────────────────────────────────── */}
+            {/* Left bg (visible on sign-in) — slate-50 */}
+            <div className="hidden md:block absolute inset-y-0 left-0 w-1/2 bg-slate-50/60" />
+            {/* Right bg (visible on sign-in) — white */}
+            <div className="hidden md:block absolute inset-y-0 right-0 w-1/2 bg-white" />
+
+            <div className="relative w-full min-h-screen overflow-hidden flex">
 
                 {/* ══════════════════════════════════════════════════════════
                     SIGN-IN FORM  — always left half, visible when !isSignUp
                 ══════════════════════════════════════════════════════════ */}
                 <div className={`absolute inset-y-0 left-0 w-full md:w-1/2 flex flex-col
-                                 items-center justify-center px-8 md:px-12 py-10 transition-all
+                                 items-center justify-center px-8 md:px-16 py-10 bg-slate-50/60 transition-all
                                  duration-700 ease-in-out
                                  ${isSignUp
                                     ? 'opacity-0 pointer-events-none translate-x-0 md:-translate-x-full'
@@ -219,7 +222,7 @@ export function Auth() {
                     SIGN-UP FORM  — always right half, visible when isSignUp
                 ══════════════════════════════════════════════════════════ */}
                 <div className={`absolute inset-y-0 right-0 w-full md:w-1/2 flex flex-col
-                                 items-center justify-center px-8 md:px-12 py-10 transition-all
+                                 items-center justify-center px-8 md:px-16 py-10 bg-white transition-all
                                  duration-700 ease-in-out
                                  ${isSignUp
                                     ? 'opacity-100 translate-x-0'
@@ -321,7 +324,7 @@ export function Auth() {
                     </div>
                 </div>
 
-            </div>{/* end outer card */}
+            </div>
         </div>
     );
 }
