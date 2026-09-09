@@ -102,10 +102,10 @@ const AdminDashboard = () => {
     );
 
     return (
-        <div className={`min-h-screen flex overflow-x-hidden transition-colors duration-300 ${darkMode ? 'bg-slate-900' : 'bg-[#F8FAFC]'}`}>
+        <div className={`h-screen flex overflow-hidden transition-colors duration-300 ${darkMode ? 'bg-slate-900' : 'bg-[#F8FAFC]'}`}>
 
-            {/* ── DESKTOP SIDEBAR ─────────────────────────────────────── */}
-            <div className="hidden lg:flex w-72 bg-[#0F172A] p-6 text-white flex-col sticky top-0 h-screen shrink-0">
+            {/* ── DESKTOP SIDEBAR — fixed height, never scrolls ─────────── */}
+            <div className="hidden lg:flex w-72 bg-[#0F172A] p-6 text-white flex-col h-screen shrink-0 overflow-y-auto">
                 <Sidebar />
             </div>
 
@@ -121,8 +121,8 @@ const AdminDashboard = () => {
                 </div>
             )}
 
-            {/* ── MAIN CONTENT ────────────────────────────────────────── */}
-            <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden">
+            {/* ── MAIN CONTENT — scrolls independently from sidebar ───── */}
+            <div className="flex-1 flex flex-col h-screen overflow-hidden">
 
                 {/* Header */}
                 <header className="h-16 md:h-20 bg-white border-b border-slate-100 flex items-center justify-between px-4 md:px-10 sticky top-0 z-10 shrink-0">
@@ -178,7 +178,7 @@ const AdminDashboard = () => {
                 </header>
 
                 {/* Page Content */}
-                <main className={`flex-1 p-4 md:p-8 overflow-y-auto overflow-x-hidden transition-colors duration-300 ${darkMode ? 'bg-slate-900' : ''}`}>
+                <main className={`flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 transition-colors duration-300 ${darkMode ? 'bg-slate-900' : ''}`}>
                     <div className="max-w-6xl mx-auto">
                         {(isJobsRoute || isApplicationsRoute || isReviewRoute) ? (
                             <div className="animate-in fade-in duration-500">
